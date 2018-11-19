@@ -1,13 +1,11 @@
 package com.f4pl0.ami;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -17,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.f4pl0.ami.Fragments.SetupAgeFragment;
+import com.f4pl0.ami.Fragments.SetupContactsFragmentPermission;
 import com.f4pl0.ami.Fragments.SetupLocationFragment;
 import com.f4pl0.ami.Fragments.SetupNameFragment;
 import com.f4pl0.ami.Fragments.SetupOccupationFragment;
@@ -106,7 +105,7 @@ public class SetupActivity extends FragmentActivity {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-                            fragment = new SetupLocationFragment();
+                            fragment = new SetupContactsFragmentPermission();
                             transaction.replace(R.id.setupFragment, fragment);
                             transaction.addToBackStack(null);
                             transaction.commit();
