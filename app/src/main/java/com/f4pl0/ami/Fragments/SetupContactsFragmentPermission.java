@@ -12,6 +12,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.f4pl0.ami.R;
+import com.f4pl0.ami.SetupActivity;
+import com.f4pl0.ami.Structures.Contact;
+
+import java.util.ArrayList;
 
 public class SetupContactsFragmentPermission extends Fragment {
 
@@ -28,12 +32,15 @@ public class SetupContactsFragmentPermission extends Fragment {
         getContactsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getContactList();
+                ((SetupActivity) getActivity()).showContactsFragment(getContactList());
             }
         });
         return fragmentView;
     }
-    private void getContactList() {
+
+    private Contact[] getContactList() {
+        // Method that gets the contacts and returns it as a array
+        ArrayList<Contact> contacts = new ArrayList<>();
         ContentResolver cr = getActivity().getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
@@ -57,6 +64,7 @@ public class SetupContactsFragmentPermission extends Fragment {
                                 ContactsContract.CommonDataKinds.Phone.NUMBER));
                         Log.i("Contact", "Name: " + name);
                         Log.i("Contact", "Phone Number: " + phoneNo);
+                        contacts.add(new Contact(name, phoneNo));
                     }
                     pCur.close();
                 }
@@ -65,5 +73,6 @@ public class SetupContactsFragmentPermission extends Fragment {
         if(cur!=null){
             cur.close();
         }
+        return contacts.toArray(new Contact[contacts.size()]);
     }
 }

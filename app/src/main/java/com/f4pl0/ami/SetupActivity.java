@@ -15,10 +15,12 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.f4pl0.ami.Fragments.SetupAgeFragment;
+import com.f4pl0.ami.Fragments.SetupContactsFragment;
 import com.f4pl0.ami.Fragments.SetupContactsFragmentPermission;
 import com.f4pl0.ami.Fragments.SetupLocationFragment;
 import com.f4pl0.ami.Fragments.SetupNameFragment;
 import com.f4pl0.ami.Fragments.SetupOccupationFragment;
+import com.f4pl0.ami.Structures.Contact;
 
 import java.io.IOException;
 import java.util.List;
@@ -177,5 +179,13 @@ public class SetupActivity extends FragmentActivity {
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+    public void showContactsFragment(Contact[] contacts){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        fragment = new SetupContactsFragment(contacts);
+        transaction.replace(R.id.setupFragment, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
