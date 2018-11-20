@@ -1,16 +1,24 @@
 package com.f4pl0.ami;
 
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -21,9 +29,14 @@ import com.f4pl0.ami.Fragments.SetupContactsFragmentPermission;
 import com.f4pl0.ami.Fragments.SetupLocationFragment;
 import com.f4pl0.ami.Fragments.SetupNameFragment;
 import com.f4pl0.ami.Fragments.SetupOccupationFragment;
+import com.f4pl0.ami.Fragments.SetupPhoneFragment;
 import com.f4pl0.ami.Structures.Contact;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -35,6 +48,8 @@ public class SetupActivity extends FragmentActivity {
     String location = "";
     Contact[] contacts;
 
+    LocationManager lm;
+    private FusedLocationProviderClient mFusedLocationClient;
     ImageButton nextBtn;
     int currentStep = 0;
     Fragment fragment;
@@ -53,6 +68,7 @@ public class SetupActivity extends FragmentActivity {
         transaction.commit();
 
         //Initialize stuff
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         progress = new ProgressDialog(this);
         progress.setTitle("Please wait a bit");
         progress.setMessage("Loading...");
@@ -129,11 +145,12 @@ public class SetupActivity extends FragmentActivity {
                         //Change fragment with a nice little animation
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-                        fragment = new SetupContactsFragmentPermission();
+                        fragment = new SetupPhoneFragment();
                         transaction.replace(R.id.setupFragment, fragment);
                         transaction.addToBackStack(null);
                         transaction.commit();
                         currentStep++;
+                        nextBtn.setVisibility(View.INVISIBLE);
                         break;
 
                 }
@@ -189,23 +206,103 @@ public class SetupActivity extends FragmentActivity {
             }
         }
     }
+    int count= 0;
+    private LocationListener mLocationListener = new LocationListener()
+    {
+        @Override
+        public void onLocationChanged(final Location location) {
+            if(location != null) {
+                double longitude = location.getLongitude();
+                double latitude = location.getLatitude();
+                getLocation(latitude, longitude);
+                lm.removeUpdates(mLocationListener);
+                dismissLoading();
+            }else{
+                count ++;
+                if(count > 3){
+                    Toast.makeText(SetupActivity.this, "Couldn't get Your location.", Toast.LENGTH_SHORT).show();
+                    lm.removeUpdates(mLocationListener);
+                    count = 0;
+                    dismissLoading();
+                }
+            }
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
+                showLoading("Getting your location...");
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    showLoading("Getting your location...");
-                    LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                    Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    double longitude = location.getLongitude();
-                    double latitude = location.getLatitude();
-                    getLocation(latitude, longitude);
+                    //showLoading("Getting your location...");
+                    //getApplicationContext().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                    Log.d("LOCATION_SERVICES","ListSize: "+lm.getAllProviders().size());
+                    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+                    return;
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
+                    Log.e("PERMISSION", "PERMISSION FOR LOCATION DENIED");
                 }
-                return;
+                break;
             }
+            case 2:
+                //contacts
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    ArrayList<Contact> contacts = new ArrayList<>();
+                    ContentResolver cr = this.getContentResolver();
+                    Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                            null, null, null, null);
+
+                    if ((cur != null ? cur.getCount() : 0) > 0) {
+                        while (cur != null && cur.moveToNext()) {
+                            String id = cur.getString(
+                                    cur.getColumnIndex(ContactsContract.Contacts._ID));
+                            String name = cur.getString(cur.getColumnIndex(
+                                    ContactsContract.Contacts.DISPLAY_NAME));
+                            Log.d("Contact", "CHECK1");
+                            if (cur.getInt(cur.getColumnIndex(
+                                    ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                                Cursor pCur = cr.query(
+                                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                        null,
+                                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                                        new String[]{id}, null);
+                                while (pCur.moveToNext()) {
+                                    String phoneNo = pCur.getString(pCur.getColumnIndex(
+                                            ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                    Log.d("Contact", "Name:" + name);
+                                    Log.d("Contact", "phoneNo:" + phoneNo);
+                                    contacts.add(new Contact(name, phoneNo));
+                                }
+                                pCur.close();
+                            }
+                        }
+                    }
+                    if(cur!=null){
+                        cur.close();
+                    }
+                    showContactsFragment(contacts.toArray(new Contact[contacts.size()]));
+                }else {
+                    Log.e("PERMISSION", "PERMISSION FOR CONTACTS NOT GRANTED");
+                }
+                break;
             // other 'case' lines to check for other
             // permissions this app might request
         }
@@ -227,5 +324,14 @@ public class SetupActivity extends FragmentActivity {
     }
     public void dismissLoading(){
         progress.dismiss();
+    }
+    public void getPhoneAndChangeFragment(){
+        //Get the number
+        TelephonyManager tMgr = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        String mPhoneNumber = tMgr.getLine1Number();
+
+        //Change the fragment with the phone
+        nextBtn.setVisibility(View.VISIBLE);
+        ((SetupPhoneFragment)fragment).changeFragment(mPhoneNumber);
     }
 }
