@@ -1,5 +1,6 @@
 package com.f4pl0.ami;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -32,9 +33,12 @@ public class SetupActivity extends FragmentActivity {
     int age = 0;
     String occupation = "";
     String location = "";
+    Contact[] contacts;
+
     ImageButton nextBtn;
     int currentStep = 0;
     Fragment fragment;
+    ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,10 @@ public class SetupActivity extends FragmentActivity {
         transaction.commit();
 
         //Initialize stuff
+        progress = new ProgressDialog(this);
+        progress.setTitle("Please wait a bit");
+        progress.setMessage("Loading...");
+        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
         nextBtn = findViewById(R.id.setupNextBtn);
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,17 +119,31 @@ public class SetupActivity extends FragmentActivity {
                             transaction.replace(R.id.setupFragment, fragment);
                             transaction.addToBackStack(null);
                             transaction.commit();
+                            nextBtn.setVisibility(View.INVISIBLE);
                             currentStep++;
                         }else{
                             Toast.makeText(SetupActivity.this, "Please enter Your Occupation.", Toast.LENGTH_SHORT).show();
                         }
+                        break;
+                    case 4:
+                        //Change fragment with a nice little animation
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        fragment = new SetupContactsFragmentPermission();
+                        transaction.replace(R.id.setupFragment, fragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
+                        currentStep++;
                         break;
 
                 }
             }
         });
     }
-
+    @Override
+    public void onBackPressed() {
+        //do nothing lol
+    }
     public void setName(String t){
         name = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.name",name).commit();
@@ -137,7 +159,14 @@ public class SetupActivity extends FragmentActivity {
     public void setLocation(String t){
         location = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.location", location).commit();
+        dismissLoading();
         nextBtn.setVisibility(View.VISIBLE);
+    }
+    public void setContacts(Contact[] contacts){
+        this.contacts = contacts;
+    }
+    public void setContactType(int ContactIndex, int Type){
+        this.contacts[ContactIndex].SetType(Type);
     }
     private void getLocation(double lat, double lng){
         Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
@@ -165,6 +194,7 @@ public class SetupActivity extends FragmentActivity {
             case 1: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showLoading("Getting your location...");
                     LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
                     Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     double longitude = location.getLongitude();
@@ -184,8 +214,18 @@ public class SetupActivity extends FragmentActivity {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
         fragment = new SetupContactsFragment(contacts);
+        setContacts(contacts);
         transaction.replace(R.id.setupFragment, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+        nextBtn.setVisibility(View.VISIBLE);
+        dismissLoading();
+    }
+    public void showLoading(String message){
+        progress.setMessage(message);
+        progress.show();
+    }
+    public void dismissLoading(){
+        progress.dismiss();
     }
 }

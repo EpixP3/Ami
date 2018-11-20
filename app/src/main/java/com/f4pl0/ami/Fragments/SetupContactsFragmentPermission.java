@@ -32,6 +32,7 @@ public class SetupContactsFragmentPermission extends Fragment {
         getContactsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((SetupActivity) getActivity()).showLoading("Getting Your contacts...");
                 ((SetupActivity) getActivity()).showContactsFragment(getContactList());
             }
         });
@@ -62,8 +63,6 @@ public class SetupContactsFragmentPermission extends Fragment {
                     while (pCur.moveToNext()) {
                         String phoneNo = pCur.getString(pCur.getColumnIndex(
                                 ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        Log.i("Contact", "Name: " + name);
-                        Log.i("Contact", "Phone Number: " + phoneNo);
                         contacts.add(new Contact(name, phoneNo));
                     }
                     pCur.close();

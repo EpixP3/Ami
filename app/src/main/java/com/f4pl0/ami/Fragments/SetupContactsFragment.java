@@ -1,6 +1,7 @@
 package com.f4pl0.ami.Fragments;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -35,7 +36,7 @@ public class SetupContactsFragment extends Fragment {
         for (int i=0;i<contacts.length; i++){
             FragmentManager fragmentManager = getFragmentManager ();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction ();
-            fragmentTransaction.add (R.id.contactsList, new ContactFragment(contacts[i]));
+            fragmentTransaction.add (R.id.contactsList, new ContactFragment(contacts[i], i));
             fragmentTransaction.commit ();
         }
 

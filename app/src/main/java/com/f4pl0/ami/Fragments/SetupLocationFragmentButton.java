@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.f4pl0.ami.R;
+import com.f4pl0.ami.SetupActivity;
 
 public class SetupLocationFragmentButton extends Fragment {
 

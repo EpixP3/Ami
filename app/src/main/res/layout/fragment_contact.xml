@@ -10,7 +10,7 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="62dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -21,29 +21,31 @@
             app:layout_constraintStart_toEndOf="@+id/ContactNameText">
 
             <ImageButton
-                android:id="@+id/imageButton"
-                android:layout_weight="1"
+                android:id="@+id/contactClosefriendBtn"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/location_icon" />
+                android:src="@drawable/contact_closefriend" />
+
             <ImageButton
-                android:id="@+id/imageButton1"
-                android:layout_weight="1"
+                android:id="@+id/contactRelativeBtn"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/location_icon" />
+                android:src="@drawable/contact_relative" />
+
             <ImageButton
-                android:id="@+id/imageButton2"
-                android:layout_weight="1"
+                android:id="@+id/contactPartnerBtn"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/location_icon" />
+                android:src="@drawable/contact_partner" />
         </LinearLayout>
 
         <TextView
@@ -53,11 +55,20 @@
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
             android:text="Name Text"
             android:textColor="#000"
-            android:gravity="center_vertical"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:background="@android:color/darker_gray" />
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>
