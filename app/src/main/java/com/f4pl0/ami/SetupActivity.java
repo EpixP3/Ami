@@ -1,9 +1,11 @@
 package com.f4pl0.ami;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
@@ -12,28 +14,27 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.telephony.TelephonyManager;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.f4pl0.ami.Fragments.SetupAgeFragment;
 import com.f4pl0.ami.Fragments.SetupContactsFragment;
 import com.f4pl0.ami.Fragments.SetupContactsFragmentPermission;
+import com.f4pl0.ami.Fragments.SetupInterestsFragment;
 import com.f4pl0.ami.Fragments.SetupLocationFragment;
 import com.f4pl0.ami.Fragments.SetupNameFragment;
 import com.f4pl0.ami.Fragments.SetupOccupationFragment;
 import com.f4pl0.ami.Fragments.SetupPhoneFragment;
 import com.f4pl0.ami.Structures.Contact;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,9 +48,9 @@ public class SetupActivity extends FragmentActivity {
     String occupation = "";
     String location = "";
     Contact[] contacts;
+    String phoneNumber = "";
 
     LocationManager lm;
-    private FusedLocationProviderClient mFusedLocationClient;
     ImageButton nextBtn;
     int currentStep = 0;
     Fragment fragment;
@@ -68,7 +69,6 @@ public class SetupActivity extends FragmentActivity {
         transaction.commit();
 
         //Initialize stuff
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         progress = new ProgressDialog(this);
         progress.setTitle("Please wait a bit");
         progress.setMessage("Loading...");
@@ -78,10 +78,10 @@ public class SetupActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 //Check on which set-up step are we on, so we can change fragments
-                switch (currentStep){
+                switch (currentStep) {
                     case 0:
                         //Check if user has entered the name
-                        if(name.length() > 0) {
+                        if (name.length() > 0) {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
@@ -90,13 +90,13 @@ public class SetupActivity extends FragmentActivity {
                             transaction.addToBackStack(null);
                             transaction.commit();
                             currentStep++;
-                        }else{
+                        } else {
                             Toast.makeText(SetupActivity.this, "Please enter Your Name.", Toast.LENGTH_SHORT).show();
                         }
                         break;
                     case 1:
                         //Check user's age
-                        if(age > 0 && age < 120) {
+                        if (age > 0 && age < 120) {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
@@ -105,13 +105,13 @@ public class SetupActivity extends FragmentActivity {
                             transaction.addToBackStack(null);
                             transaction.commit();
                             currentStep++;
-                        }else{
+                        } else {
                             Toast.makeText(SetupActivity.this, "Please enter Your Age.", Toast.LENGTH_SHORT).show();
                         }
                         break;
                     case 2:
                         //Check user's occupation
-                        if(occupation.length() > 0) {
+                        if (occupation.length() > 0) {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
@@ -121,13 +121,13 @@ public class SetupActivity extends FragmentActivity {
                             transaction.commit();
                             nextBtn.setVisibility(View.INVISIBLE);
                             currentStep++;
-                        }else{
+                        } else {
                             Toast.makeText(SetupActivity.this, "Please enter Your Occupation.", Toast.LENGTH_SHORT).show();
                         }
                         break;
                     case 3:
                         //Check user's location
-                        if(location.length() > 0) {
+                        if (location.length() > 0) {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
@@ -137,55 +137,98 @@ public class SetupActivity extends FragmentActivity {
                             transaction.commit();
                             nextBtn.setVisibility(View.INVISIBLE);
                             currentStep++;
-                        }else{
+                        } else {
                             Toast.makeText(SetupActivity.this, "Please enter Your Occupation.", Toast.LENGTH_SHORT).show();
                         }
                         break;
                     case 4:
+                        if(contacts.length > 0) {
+                            //Change fragment with a nice little animation
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            fragment = new SetupPhoneFragment();
+                            transaction.replace(R.id.setupFragment, fragment);
+                            transaction.addToBackStack(null);
+                            transaction.commit();
+                            currentStep++;
+                            nextBtn.setVisibility(View.INVISIBLE);
+                            break;
+                        }
+                    case 5:
                         //Change fragment with a nice little animation
-                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-                        fragment = new SetupPhoneFragment();
-                        transaction.replace(R.id.setupFragment, fragment);
-                        transaction.addToBackStack(null);
-                        transaction.commit();
-                        currentStep++;
-                        nextBtn.setVisibility(View.INVISIBLE);
-                        break;
-
+                        if(phoneNumber.length() > 0) {
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            fragment = new SetupInterestsFragment();
+                            transaction.replace(R.id.setupFragment, fragment);
+                            transaction.addToBackStack(null);
+                            transaction.commit();
+                            currentStep++;
+                            break;
+                        }else{
+                            Toast.makeText(SetupActivity.this, "Phone number cannot be empty", Toast.LENGTH_SHORT).show();
+                        }
+                    case 6:
+                        //Change fragment with a nice little animation
+                        if(phoneNumber.length() > 0) {
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            fragment = new SetupInterestsFragment();
+                            transaction.replace(R.id.setupFragment, fragment);
+                            transaction.addToBackStack(null);
+                            transaction.commit();
+                            currentStep++;
+                            break;
+                        }else{
+                            Toast.makeText(SetupActivity.this, "Phone number cannot be empty", Toast.LENGTH_SHORT).show();
+                        }
                 }
             }
         });
     }
+
     @Override
     public void onBackPressed() {
         //do nothing lol
     }
-    public void setName(String t){
+
+    public void setName(String t) {
         name = t;
-        getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.name",name).commit();
+        getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.name", name).commit();
     }
-    public void setAge(int t){
+
+    public void setAge(int t) {
         age = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putInt("user.age", age).commit();
     }
-    public void setOccupation(String t){
+
+    public void setOccupation(String t) {
         occupation = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.occupation", occupation).commit();
     }
-    public void setLocation(String t){
+
+    public void setLocation(String t) {
         location = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.location", location).commit();
         dismissLoading();
         nextBtn.setVisibility(View.VISIBLE);
     }
-    public void setContacts(Contact[] contacts){
+
+    public void setContacts(Contact[] contacts) {
         this.contacts = contacts;
     }
-    public void setContactType(int ContactIndex, int Type){
+    public void setPhoneNumber(String t){
+        this.phoneNumber = t;
+        getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.phoneNumber", phoneNumber).commit();
+    }
+
+
+
+    public void setContactType(int ContactIndex, int Type) {
         this.contacts[ContactIndex].SetType(Type);
     }
-    private void getLocation(double lat, double lng){
+
+    private void getLocation(double lat, double lng) {
         Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
         List<Address> addresses = null;
         try {
@@ -194,11 +237,11 @@ public class SetupActivity extends FragmentActivity {
             e.printStackTrace();
         }
         if (addresses.size() > 0) {
-            for (int i=0; i < addresses.size(); i++){
+            for (int i = 0; i < addresses.size(); i++) {
                 String city = addresses.get(i).getLocality();
                 String country = addresses.get(0).getCountryName();
-                if(city != null && country != null){
-                    String loc = city + ", "+country;
+                if (city != null && country != null) {
+                    String loc = city + ", " + country;
                     setLocation(loc);
                     ((SetupLocationFragment) fragment).nextStep();
                     break;
@@ -206,24 +249,34 @@ public class SetupActivity extends FragmentActivity {
             }
         }
     }
-    int count= 0;
-    private LocationListener mLocationListener = new LocationListener()
-    {
+
+    int count = 0;
+    private LocationListener mLocationListener = new LocationListener() {
+        @SuppressLint("MissingPermission")
         @Override
         public void onLocationChanged(final Location location) {
-            if(location != null) {
+            if (location != null) {
                 double longitude = location.getLongitude();
                 double latitude = location.getLatitude();
                 getLocation(latitude, longitude);
                 lm.removeUpdates(mLocationListener);
                 dismissLoading();
-            }else{
-                count ++;
-                if(count > 3){
-                    Toast.makeText(SetupActivity.this, "Couldn't get Your location.", Toast.LENGTH_SHORT).show();
-                    lm.removeUpdates(mLocationListener);
-                    count = 0;
-                    dismissLoading();
+            } else {
+                count++;
+                switch (count) {
+                    case 1:
+                        lm.removeUpdates(mLocationListener);
+                        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
+                        break;
+                    case 2:
+                        lm.removeUpdates(mLocationListener);
+                        lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, mLocationListener);
+                        break;
+                    case 3:
+                        Toast.makeText(SetupActivity.this, "Couldn't get Your location. Please try again later.", Toast.LENGTH_SHORT).show();
+                        lm.removeUpdates(mLocationListener);
+                        count = 0;
+                        break;
                 }
             }
         }
@@ -276,7 +329,6 @@ public class SetupActivity extends FragmentActivity {
                                     cur.getColumnIndex(ContactsContract.Contacts._ID));
                             String name = cur.getString(cur.getColumnIndex(
                                     ContactsContract.Contacts.DISPLAY_NAME));
-                            Log.d("Contact", "CHECK1");
                             if (cur.getInt(cur.getColumnIndex(
                                     ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
                                 Cursor pCur = cr.query(
@@ -287,8 +339,6 @@ public class SetupActivity extends FragmentActivity {
                                 while (pCur.moveToNext()) {
                                     String phoneNo = pCur.getString(pCur.getColumnIndex(
                                             ContactsContract.CommonDataKinds.Phone.NUMBER));
-                                    Log.d("Contact", "Name:" + name);
-                                    Log.d("Contact", "phoneNo:" + phoneNo);
                                     contacts.add(new Contact(name, phoneNo));
                                 }
                                 pCur.close();
@@ -328,10 +378,34 @@ public class SetupActivity extends FragmentActivity {
     public void getPhoneAndChangeFragment(){
         //Get the number
         TelephonyManager tMgr = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-        String mPhoneNumber = tMgr.getLine1Number();
+        String mPhoneNumber = "";
+        try {
+            mPhoneNumber = tMgr.getLine1Number();
+        }catch (Exception e){}
+        if(mPhoneNumber.isEmpty()){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("We couldn't get Your phone number, please enter it for us.");
+            // Set up the input
+            final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_PHONE);
+            builder.setView(input);
 
-        //Change the fragment with the phone
-        nextBtn.setVisibility(View.VISIBLE);
-        ((SetupPhoneFragment)fragment).changeFragment(mPhoneNumber);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //Change the fragment with the phone
+                    nextBtn.setVisibility(View.VISIBLE);
+                    setPhoneNumber(input.getText().toString());
+                    ((SetupPhoneFragment) fragment).changeFragment(input.getText().toString());
+                }
+            });
+
+            builder.show();
+        }else {
+            //Change the fragment with the phone
+            nextBtn.setVisibility(View.VISIBLE);
+            setPhoneNumber(mPhoneNumber);
+            ((SetupPhoneFragment) fragment).changeFragment(mPhoneNumber);
+        }
     }
 }

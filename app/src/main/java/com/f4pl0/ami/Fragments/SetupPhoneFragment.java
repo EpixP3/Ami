@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.f4pl0.ami.R;
-import com.f4pl0.ami.SetupPhoneFragmentNumber;
-import com.f4pl0.ami.SetupPhoneFragmentPermission;
 
 public class SetupPhoneFragment extends Fragment {
 
