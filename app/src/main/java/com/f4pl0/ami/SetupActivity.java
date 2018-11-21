@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
@@ -14,6 +15,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.provider.ContactsContract;
+import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -26,9 +28,17 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.f4pl0.ami.Fragments.SetupAgeFragment;
 import com.f4pl0.ami.Fragments.SetupContactsFragment;
 import com.f4pl0.ami.Fragments.SetupContactsFragmentPermission;
+import com.f4pl0.ami.Fragments.SetupDonateFragment;
 import com.f4pl0.ami.Fragments.SetupInterestsFragment;
 import com.f4pl0.ami.Fragments.SetupLocationFragment;
 import com.f4pl0.ami.Fragments.SetupNameFragment;
@@ -36,8 +46,11 @@ import com.f4pl0.ami.Fragments.SetupOccupationFragment;
 import com.f4pl0.ami.Fragments.SetupPhoneFragment;
 import com.f4pl0.ami.Structures.Contact;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,6 +62,7 @@ public class SetupActivity extends FragmentActivity {
     String location = "";
     Contact[] contacts;
     String phoneNumber = "";
+    String interests = "";
 
     LocationManager lm;
     ImageButton nextBtn;
@@ -169,19 +183,60 @@ public class SetupActivity extends FragmentActivity {
                             Toast.makeText(SetupActivity.this, "Phone number cannot be empty", Toast.LENGTH_SHORT).show();
                         }
                     case 6:
-                        //Change fragment with a nice little animation
-                        if(phoneNumber.length() > 0) {
+                        // Get interests and store them
+                        String inters = getSharedPreferences("interests", Context.MODE_PRIVATE).getString("user.interests", "");
+                        if(inters.split(",").length > 3) {
+                            setInterests(inters);
+                            Log.d("INTERESTS", inters);
+                            //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-                            fragment = new SetupInterestsFragment();
+                            fragment = new SetupDonateFragment();
                             transaction.replace(R.id.setupFragment, fragment);
                             transaction.addToBackStack(null);
                             transaction.commit();
                             currentStep++;
                             break;
                         }else{
-                            Toast.makeText(SetupActivity.this, "Phone number cannot be empty", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SetupActivity.this, "Please select at least 3 interests.", Toast.LENGTH_SHORT).show();
                         }
+                    case 7:
+                        //Finish with the setup and upload data to the server.
+                        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                        String url ="http://160.153.133.159/";
+                        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                if(response.contains("ok")){
+                                    getPreferences(MainActivity.MODE_PRIVATE).edit().putBoolean("SetUp", true).commit();
+                                    Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                    startActivity(myIntent);
+                                    finish();
+                                }
+
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                            }
+                        }) {
+                            @Override
+                            public byte[] getBody(){
+                                HashMap<String, String> params2 = new HashMap<String, String>();
+                                params2.put("name", "Val");
+                                params2.put("subject", "Test Subject");
+                                return new JSONObject(params2).toString().getBytes();
+                            }
+
+                            @Override
+                            public String getBodyContentType() {
+                                return "application/json";
+                            }
+                        };
+                        queue.add(sr);
+
+
+                        break;
                 }
             }
         });
@@ -217,12 +272,15 @@ public class SetupActivity extends FragmentActivity {
     public void setContacts(Contact[] contacts) {
         this.contacts = contacts;
     }
+
     public void setPhoneNumber(String t){
         this.phoneNumber = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.phoneNumber", phoneNumber).commit();
     }
 
-
+    public void setInterests(String interest){
+        this.interests = interest;
+    }
 
     public void setContactType(int ContactIndex, int Type) {
         this.contacts[ContactIndex].SetType(Type);
@@ -379,9 +437,14 @@ public class SetupActivity extends FragmentActivity {
         //Get the number
         TelephonyManager tMgr = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         String mPhoneNumber = "";
-        try {
-            mPhoneNumber = tMgr.getLine1Number();
-        }catch (Exception e){}
+        try
+        {
+            mPhoneNumber =tMgr.getLine1Number();
+        }
+        catch(NullPointerException ex)
+        {
+        }
+
         if(mPhoneNumber.isEmpty()){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("We couldn't get Your phone number, please enter it for us.");

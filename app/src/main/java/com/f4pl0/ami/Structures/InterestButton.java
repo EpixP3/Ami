@@ -6,6 +6,7 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 
+import com.f4pl0.ami.MainActivity;
 import com.f4pl0.ami.R;
 
 public class InterestButton extends android.support.v7.widget.AppCompatButton {
@@ -36,8 +37,12 @@ public class InterestButton extends android.support.v7.widget.AppCompatButton {
         this.activated = activated;
         if(activated) {
             this.setBackground(getResources().getDrawable(R.drawable.interest_button_true));
+            String inters = getContext().getSharedPreferences("interests", Context.MODE_PRIVATE).getString("user.interests", "");
+            getContext().getSharedPreferences("interests", Context.MODE_PRIVATE).edit().putString("user.interests", inters + ","+name).commit();
         }else{
             this.setBackground(getResources().getDrawable(R.drawable.interest_button_false));
+            String inters = getContext().getSharedPreferences("interests", Context.MODE_PRIVATE).getString("user.interests", "");
+            getContext().getSharedPreferences("interests", Context.MODE_PRIVATE).edit().putString("user.interests", inters.replace(","+name, "")).commit();
         }
     }
     public boolean GetActivated(){
