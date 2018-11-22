@@ -1,4 +1,4 @@
-package com.f4pl0.ami.Fragments;
+package com.f4pl0.ami.Fragments.SetupFragments;
 
 import android.Manifest;
 import android.os.Bundle;

@@ -11,7 +11,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //Check if user is registered, if not, go to "setup" activity
-        boolean setup = getPreferences(MODE_PRIVATE).getBoolean("SetUp",false);
+        boolean setup = getApplicationContext().getSharedPreferences("shared",MODE_PRIVATE).getBoolean("SetUp",false);
         if(setup){
             setContentView(R.layout.activity_main);
         }else{

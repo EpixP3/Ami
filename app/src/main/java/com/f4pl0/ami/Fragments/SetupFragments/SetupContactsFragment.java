@@ -1,4 +1,4 @@
-package com.f4pl0.ami.Fragments;
+package com.f4pl0.ami.Fragments.SetupFragments;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.f4pl0.ami.Fragments.ContactFragment;
 import com.f4pl0.ami.R;
 import com.f4pl0.ami.Structures.Contact;
 

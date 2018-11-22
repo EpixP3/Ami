@@ -15,7 +15,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.provider.ContactsContract;
-import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -28,24 +27,25 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.f4pl0.ami.Fragments.SetupAgeFragment;
-import com.f4pl0.ami.Fragments.SetupContactsFragment;
-import com.f4pl0.ami.Fragments.SetupContactsFragmentPermission;
-import com.f4pl0.ami.Fragments.SetupDonateFragment;
-import com.f4pl0.ami.Fragments.SetupInterestsFragment;
-import com.f4pl0.ami.Fragments.SetupLocationFragment;
-import com.f4pl0.ami.Fragments.SetupNameFragment;
-import com.f4pl0.ami.Fragments.SetupOccupationFragment;
-import com.f4pl0.ami.Fragments.SetupPhoneFragment;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupAgeFragment;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupContactsFragment;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupContactsFragmentPermission;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupDonateFragment;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupInterestsFragment;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupLocationFragment;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupNameFragment;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupOccupationFragment;
+import com.f4pl0.ami.Fragments.SetupFragments.SetupPhoneFragment;
 import com.f4pl0.ami.Structures.Contact;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class SetupActivity extends FragmentActivity {
 
@@ -196,45 +197,75 @@ public class SetupActivity extends FragmentActivity {
                             transaction.addToBackStack(null);
                             transaction.commit();
                             currentStep++;
-                            break;
                         }else{
                             Toast.makeText(SetupActivity.this, "Please select at least 3 interests.", Toast.LENGTH_SHORT).show();
                         }
+                        break;
                     case 7:
                         //Finish with the setup and upload data to the server.
+                        showLoading("Finishing your registration...");
                         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-                        String url ="http://160.153.133.159/";
-                        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                if(response.contains("ok")){
-                                    getPreferences(MainActivity.MODE_PRIVATE).edit().putBoolean("SetUp", true).commit();
-                                    Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
-                                    startActivity(myIntent);
-                                    finish();
+                        String url ="http://ami.earth/android/api/register.php";
+                        //Setup the contacts JSON
+                        final JSONArray contactsJSONArray = new JSONArray();
+                        try {
+                            for (int i=0; i < contacts.length; i++){
+                                if(contacts[i].GetNumber().startsWith("+")){
+                                    contactsJSONArray.put(new JSONObject()
+                                            .put("name", contacts[i].GetName())
+                                            .put("number", contacts[i].GetNumber())
+                                            .put("type", contacts[i].GetType()));
+                                }else if(contacts[i].GetNumber().startsWith("0")){
+                                    contactsJSONArray.put(new JSONObject()
+                                            .put("name", contacts[i].GetName())
+                                            .put("number", "+"+GetCountryZipCode()+contacts[i].GetNumber().substring(1))
+                                            .put("type", contacts[i].GetType()));
                                 }
-
                             }
-                        }, new Response.ErrorListener() {
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                                new Response.Listener<String>()
+                                {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        if(response.contains("ok")){
+                                            getApplicationContext().getSharedPreferences("shared",MainActivity.MODE_PRIVATE).edit().putBoolean("SetUp", true).commit();
+                                            Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                            startActivity(myIntent);
+                                            dismissLoading();
+                                            finish();
+                                        }else{
+                                            dismissLoading();
+                                            Toast.makeText(SetupActivity.this, "There was an error. Response: "+response, Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                },
+                                new Response.ErrorListener()
+                                {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        dismissLoading();
+                                        Toast.makeText(SetupActivity.this, "There was an error.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                        ) {
                             @Override
-                            public void onErrorResponse(VolleyError error) {
-                            }
-                        }) {
-                            @Override
-                            public byte[] getBody(){
-                                HashMap<String, String> params2 = new HashMap<String, String>();
-                                params2.put("name", "Val");
-                                params2.put("subject", "Test Subject");
-                                return new JSONObject(params2).toString().getBytes();
-                            }
-
-                            @Override
-                            public String getBodyContentType() {
-                                return "application/json";
+                            protected Map<String, String> getParams()
+                            {
+                                Map<String, String>  params = new HashMap<String, String>();
+                                params.put("name", name);
+                                params.put("age", ""+age);
+                                params.put("occupation",occupation);
+                                params.put("location", location);
+                                params.put("contacts", contactsJSONArray.toString());
+                                params.put("phone", phoneNumber);
+                                params.put("interests", interests);
+                                return params;
                             }
                         };
-                        queue.add(sr);
-
+                        queue.add(postRequest);
 
                         break;
                 }
@@ -272,7 +303,23 @@ public class SetupActivity extends FragmentActivity {
     public void setContacts(Contact[] contacts) {
         this.contacts = contacts;
     }
+    public String GetCountryZipCode(){
+        String CountryID="";
+        String CountryZipCode="";
 
+        TelephonyManager manager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        //getNetworkCountryIso
+        CountryID= manager.getSimCountryIso().toUpperCase();
+        String[] rl=this.getResources().getStringArray(R.array.CountryCodes);
+        for(int i=0;i<rl.length;i++){
+            String[] g=rl[i].split(",");
+            if(g[1].trim().equals(CountryID.trim())){
+                CountryZipCode=g[0];
+                break;
+            }
+        }
+        return CountryZipCode;
+    }
     public void setPhoneNumber(String t){
         this.phoneNumber = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.phoneNumber", phoneNumber).commit();
@@ -450,6 +497,7 @@ public class SetupActivity extends FragmentActivity {
             builder.setTitle("We couldn't get Your phone number, please enter it for us.");
             // Set up the input
             final EditText input = new EditText(this);
+            input.setText("+"+GetCountryZipCode());
             input.setInputType(InputType.TYPE_CLASS_PHONE);
             builder.setView(input);
 

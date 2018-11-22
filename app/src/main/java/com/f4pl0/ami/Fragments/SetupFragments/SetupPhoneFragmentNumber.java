@@ -1,4 +1,4 @@
-package com.f4pl0.ami.Fragments;
+package com.f4pl0.ami.Fragments.SetupFragments;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -47,8 +47,8 @@ public class SetupPhoneFragmentNumber extends Fragment {
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Please enter Your number");
-
                 final EditText input = new EditText(getContext());
+                input.setText("+"+((SetupActivity)getActivity()).GetCountryZipCode());
                 input.setText(number);
                 input.setGravity(EditText.TEXT_ALIGNMENT_CENTER);
                 input.setInputType(InputType.TYPE_CLASS_PHONE);

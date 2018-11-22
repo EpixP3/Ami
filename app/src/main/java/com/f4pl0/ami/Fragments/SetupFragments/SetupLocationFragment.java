@@ -1,6 +1,5 @@
-package com.f4pl0.ami.Fragments;
+package com.f4pl0.ami.Fragments.SetupFragments;
 
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
