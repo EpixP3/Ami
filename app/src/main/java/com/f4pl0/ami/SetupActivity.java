@@ -213,12 +213,12 @@ public class SetupActivity extends FragmentActivity {
                                 if(contacts[i].GetNumber().startsWith("+")){
                                     contactsJSONArray.put(new JSONObject()
                                             .put("name", contacts[i].GetName())
-                                            .put("number", contacts[i].GetNumber())
+                                            .put("number", contacts[i].GetNumber().replace(" ", ""))
                                             .put("type", contacts[i].GetType()));
                                 }else if(contacts[i].GetNumber().startsWith("0")){
                                     contactsJSONArray.put(new JSONObject()
                                             .put("name", contacts[i].GetName())
-                                            .put("number", "+"+GetCountryZipCode()+contacts[i].GetNumber().substring(1))
+                                            .put("number", "+"+GetCountryZipCode()+contacts[i].GetNumber().substring(1).replace(" ", ""))
                                             .put("type", contacts[i].GetType()));
                                 }
                             }
@@ -230,15 +230,21 @@ public class SetupActivity extends FragmentActivity {
                                 {
                                     @Override
                                     public void onResponse(String response) {
-                                        if(response.contains("ok")){
-                                            getApplicationContext().getSharedPreferences("shared",MainActivity.MODE_PRIVATE).edit().putBoolean("SetUp", true).commit();
-                                            Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
-                                            startActivity(myIntent);
-                                            dismissLoading();
-                                            finish();
-                                        }else{
-                                            dismissLoading();
-                                            Toast.makeText(SetupActivity.this, "There was an error. Response: "+response, Toast.LENGTH_SHORT).show();
+                                        try {
+                                            String[] responseArr = response.split(":");
+                                            if (responseArr.length == 2 && responseArr[0].contains("session")) {
+                                                getApplicationContext().getSharedPreferences("shared", MainActivity.MODE_PRIVATE).edit().putString("SessionID", responseArr[1]).commit();
+                                                getApplicationContext().getSharedPreferences("shared", MainActivity.MODE_PRIVATE).edit().putBoolean("SetUp", true).commit();
+                                                Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                                startActivity(myIntent);
+                                                dismissLoading();
+                                                finish();
+                                            } else {
+                                                dismissLoading();
+                                                Toast.makeText(SetupActivity.this, "There was an error.", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }catch(Exception e){
+                                            Toast.makeText(SetupActivity.this, "There was an error." , Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 },
@@ -260,7 +266,7 @@ public class SetupActivity extends FragmentActivity {
                                 params.put("occupation",occupation);
                                 params.put("location", location);
                                 params.put("contacts", contactsJSONArray.toString());
-                                params.put("phone", phoneNumber);
+                                params.put("phone", phoneNumber.replace(" ", ""));
                                 params.put("interests", interests);
                                 return params;
                             }
