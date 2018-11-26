@@ -57,6 +57,7 @@ import java.util.Map;
 
 public class SetupActivity extends FragmentActivity {
 
+    //Store the setup values in these variables
     String name = "";
     int age = 0;
     String occupation = "";
@@ -115,6 +116,7 @@ public class SetupActivity extends FragmentActivity {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            //Change to occupation fragment
                             fragment = new SetupOccupationFragment();
                             transaction.replace(R.id.setupFragment, fragment);
                             transaction.addToBackStack(null);
@@ -130,6 +132,7 @@ public class SetupActivity extends FragmentActivity {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            //Change to location fragment
                             fragment = new SetupLocationFragment();
                             transaction.replace(R.id.setupFragment, fragment);
                             transaction.addToBackStack(null);
@@ -146,6 +149,7 @@ public class SetupActivity extends FragmentActivity {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            //Change to contacts fragment
                             fragment = new SetupContactsFragmentPermission();
                             transaction.replace(R.id.setupFragment, fragment);
                             transaction.addToBackStack(null);
@@ -161,6 +165,7 @@ public class SetupActivity extends FragmentActivity {
                             //Change fragment with a nice little animation
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            //Change to phone fragment
                             fragment = new SetupPhoneFragment();
                             transaction.replace(R.id.setupFragment, fragment);
                             transaction.addToBackStack(null);
@@ -174,6 +179,7 @@ public class SetupActivity extends FragmentActivity {
                         if(phoneNumber.length() > 0) {
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                            //Change to interests fragment
                             fragment = new SetupInterestsFragment();
                             transaction.replace(R.id.setupFragment, fragment);
                             transaction.addToBackStack(null);
@@ -225,6 +231,7 @@ public class SetupActivity extends FragmentActivity {
                         }catch (JSONException e){
                             e.printStackTrace();
                         }
+                        //Set up the POST Server request for registering
                         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                                 new Response.Listener<String>()
                                 {
@@ -233,8 +240,9 @@ public class SetupActivity extends FragmentActivity {
                                         try {
                                             String[] responseArr = response.split(":");
                                             if (responseArr.length == 2 && responseArr[0].contains("session")) {
+                                                //If session exists, user has successfully registered, store that session, it is very important
                                                 getApplicationContext().getSharedPreferences("shared", MainActivity.MODE_PRIVATE).edit().putString("SessionID", responseArr[1]).commit();
-                                                getApplicationContext().getSharedPreferences("shared", MainActivity.MODE_PRIVATE).edit().putBoolean("SetUp", true).commit();
+                                                //Go to the main activity, that's where the all fun is happening
                                                 Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
                                                 startActivity(myIntent);
                                                 dismissLoading();
@@ -260,6 +268,7 @@ public class SetupActivity extends FragmentActivity {
                             @Override
                             protected Map<String, String> getParams()
                             {
+                                //Set all of the POST Request parameters
                                 Map<String, String>  params = new HashMap<String, String>();
                                 params.put("name", name);
                                 params.put("age", ""+age);
@@ -285,21 +294,25 @@ public class SetupActivity extends FragmentActivity {
     }
 
     public void setName(String t) {
+        //Method for setting the age variable
         name = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.name", name).commit();
     }
 
     public void setAge(int t) {
+        //Method for setting the age variable
         age = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putInt("user.age", age).commit();
     }
 
     public void setOccupation(String t) {
+        //Method for setting the occupation variable
         occupation = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.occupation", occupation).commit();
     }
 
     public void setLocation(String t) {
+        //Method for setting the location variable
         location = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.location", location).commit();
         dismissLoading();
@@ -307,9 +320,11 @@ public class SetupActivity extends FragmentActivity {
     }
 
     public void setContacts(Contact[] contacts) {
+        //Method for setting the contacts variable
         this.contacts = contacts;
     }
     public String GetCountryZipCode(){
+        //Method that returns country call code based on SIM service country ID
         String CountryID="";
         String CountryZipCode="";
 
@@ -327,19 +342,23 @@ public class SetupActivity extends FragmentActivity {
         return CountryZipCode;
     }
     public void setPhoneNumber(String t){
+        //Method for setting the phoneNumber variable
         this.phoneNumber = t;
         getPreferences(MainActivity.MODE_PRIVATE).edit().putString("user.phoneNumber", phoneNumber).commit();
     }
 
     public void setInterests(String interest){
+        //Method for setting the interests variable
         this.interests = interest;
     }
 
     public void setContactType(int ContactIndex, int Type) {
+        //Method for setting the contact type of a contact
         this.contacts[ContactIndex].SetType(Type);
     }
 
     private void getLocation(double lat, double lng) {
+        //Method for locating the user's city and state based on coordinates
         Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
         List<Address> addresses = null;
         try {
@@ -352,6 +371,7 @@ public class SetupActivity extends FragmentActivity {
                 String city = addresses.get(i).getLocality();
                 String country = addresses.get(0).getCountryName();
                 if (city != null && country != null) {
+                    //Store city and state in a variable and go to next step
                     String loc = city + ", " + country;
                     setLocation(loc);
                     ((SetupLocationFragment) fragment).nextStep();
@@ -362,17 +382,21 @@ public class SetupActivity extends FragmentActivity {
     }
 
     int count = 0;
+    //LocationListener for getting the user's location
     private LocationListener mLocationListener = new LocationListener() {
         @SuppressLint("MissingPermission")
         @Override
         public void onLocationChanged(final Location location) {
+            //If a location is got, check if it's null
             if (location != null) {
+                //Extract the coordinates from it
                 double longitude = location.getLongitude();
                 double latitude = location.getLatitude();
                 getLocation(latitude, longitude);
                 lm.removeUpdates(mLocationListener);
                 dismissLoading();
             } else {
+                //Try all of the possible methods for location getting
                 count++;
                 switch (count) {
                     case 1:
@@ -384,6 +408,7 @@ public class SetupActivity extends FragmentActivity {
                         lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, mLocationListener);
                         break;
                     case 3:
+                        //All of the methods are a failure, android is broken
                         Toast.makeText(SetupActivity.this, "Couldn't get Your location. Please try again later.", Toast.LENGTH_SHORT).show();
                         lm.removeUpdates(mLocationListener);
                         count = 0;
@@ -469,6 +494,7 @@ public class SetupActivity extends FragmentActivity {
         }
     }
     public void showContactsFragment(Contact[] contacts){
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
         fragment = new SetupContactsFragment(contacts);
@@ -487,6 +513,7 @@ public class SetupActivity extends FragmentActivity {
         progress.dismiss();
     }
     public void getPhoneAndChangeFragment(){
+
         //Get the number
         TelephonyManager tMgr = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         String mPhoneNumber = "";
