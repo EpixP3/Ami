@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.f4pl0.ami.R;
-import com.f4pl0.ami.Structures.InterestButton;
+import com.f4pl0.ami.Utils.InterestButton;
 
 @SuppressLint("ValidFragment")
 public class SetupInterestsFragmentCategory extends Fragment {

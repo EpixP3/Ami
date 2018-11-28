@@ -2,9 +2,14 @@ package com.f4pl0.ami;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -21,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     ProgressDialog progress;
     BottomNavigationView bottomNavigationView;
+    Fragment currentFragment;
+    int currentFragmentNo = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +107,61 @@ public class MainActivity extends AppCompatActivity {
     private void InitializeComponents(){
         //Method for initializing main components
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                switch(menuItem.getItemId()){
+                    case R.id.navigation_menu_surrounds:
+                        if(currentFragmentNo == 0)return false;
+                        currentFragment = new MenuSurroundsFragment();
+                        transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        currentFragmentNo = 0;
+                        break;
+                    case R.id.navigation_menu_discover:
+                        if(currentFragmentNo == 1)return false;
+                        currentFragment = new MenuSurroundsFragment();
+                        if(currentFragmentNo > 1){
+                            transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        }else{
+                            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        }
+                        currentFragmentNo = 1;
+                        break;
+                    case R.id.navigation_menu_matching:
+                        if(currentFragmentNo == 2)return false;
+                        currentFragment = new MenuSurroundsFragment();
+                        if(currentFragmentNo > 2){
+                            transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        }else{
+                            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        }
+                        currentFragmentNo = 2;
+                        break;
+                    case R.id.navigation_menu_chats:
+                        if(currentFragmentNo == 3)return false;
+                        currentFragment = new MenuSurroundsFragment();
+                        if(currentFragmentNo > 3){
+                            transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        }else{
+                            transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        }
+                        currentFragmentNo = 3;
+                        break;
+                    case R.id.navigation_menu_profile:
+                        if(currentFragmentNo == 4)return false;
+                        currentFragment = new MenuSurroundsFragment();
+                        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        currentFragmentNo = 4;
+                        break;
+                }
+                transaction.replace(R.id.mainFragment, currentFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                return true;
+            }
+        });
     }
-
     public void showLoading(String message){
         //Method for showing the loading progress dialog
         progress.setMessage(message);

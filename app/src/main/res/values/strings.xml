@@ -10,7 +10,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string-array name="CountryCodes" >
+    <string-array name="CountryCodes">
         <item>93,AF</item>
         <item>355,AL</item>
         <item>213,DZ</item>

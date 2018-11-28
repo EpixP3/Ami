@@ -11,14 +11,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:itemIconTint="@color/colorAccent"
-        app:itemTextColor="@color/colorAccent"
+        app:itemTextColor="@color/colorActive"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_navigation_view" />
 
     <fragment
-        android:id="@+id/fragment"
+        android:id="@+id/mainFragment"
         android:name="com.f4pl0.ami.Fragments.BlankFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"

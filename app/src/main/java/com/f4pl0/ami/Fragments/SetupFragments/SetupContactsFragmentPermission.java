@@ -17,7 +17,7 @@ import android.widget.ImageButton;
 
 import com.f4pl0.ami.R;
 import com.f4pl0.ami.SetupActivity;
-import com.f4pl0.ami.Structures.Contact;
+import com.f4pl0.ami.Utils.Contact;
 
 import java.util.ArrayList;
 

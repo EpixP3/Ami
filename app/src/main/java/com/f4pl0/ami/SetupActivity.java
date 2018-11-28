@@ -42,7 +42,7 @@ import com.f4pl0.ami.Fragments.SetupFragments.SetupLocationFragment;
 import com.f4pl0.ami.Fragments.SetupFragments.SetupNameFragment;
 import com.f4pl0.ami.Fragments.SetupFragments.SetupOccupationFragment;
 import com.f4pl0.ami.Fragments.SetupFragments.SetupPhoneFragment;
-import com.f4pl0.ami.Structures.Contact;
+import com.f4pl0.ami.Utils.Contact;
 
 import org.json.JSONArray;
 import org.json.JSONException;
