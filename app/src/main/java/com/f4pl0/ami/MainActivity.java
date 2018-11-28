@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -18,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.f4pl0.ami.Fragments.MainFragments.MenuSurroundsFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     ProgressDialog progress;
     BottomNavigationView bottomNavigationView;
+    MenuSurroundsFragment menuSurroundsFragment;
     Fragment currentFragment;
     int currentFragmentNo = 0;
 
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
     private void InitializeComponents(){
         //Method for initializing main components
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        menuSurroundsFragment = new MenuSurroundsFragment();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -114,13 +116,13 @@ public class MainActivity extends AppCompatActivity {
                 switch(menuItem.getItemId()){
                     case R.id.navigation_menu_surrounds:
                         if(currentFragmentNo == 0)return false;
-                        currentFragment = new MenuSurroundsFragment();
+                        currentFragment = menuSurroundsFragment;
                         transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         currentFragmentNo = 0;
                         break;
                     case R.id.navigation_menu_discover:
                         if(currentFragmentNo == 1)return false;
-                        currentFragment = new MenuSurroundsFragment();
+                        currentFragment = menuSurroundsFragment;
                         if(currentFragmentNo > 1){
                             transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         }else{
@@ -130,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.navigation_menu_matching:
                         if(currentFragmentNo == 2)return false;
-                        currentFragment = new MenuSurroundsFragment();
+                        currentFragment = menuSurroundsFragment;
                         if(currentFragmentNo > 2){
                             transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         }else{
@@ -140,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.navigation_menu_chats:
                         if(currentFragmentNo == 3)return false;
-                        currentFragment = new MenuSurroundsFragment();
+                        currentFragment = menuSurroundsFragment;
                         if(currentFragmentNo > 3){
                             transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         }else{
@@ -150,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.navigation_menu_profile:
                         if(currentFragmentNo == 4)return false;
-                        currentFragment = new MenuSurroundsFragment();
+                        currentFragment = menuSurroundsFragment;
                         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         currentFragmentNo = 4;
                         break;
@@ -161,6 +163,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        currentFragment = menuSurroundsFragment;
+        transaction.replace(R.id.mainFragment, currentFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
     public void showLoading(String message){
         //Method for showing the loading progress dialog
