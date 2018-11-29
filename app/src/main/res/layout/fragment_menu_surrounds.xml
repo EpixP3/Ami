@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,6 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <android.support.v4.widget.SwipeRefreshLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swipeRefreshLyt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -21,6 +27,54 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
         </ScrollView>
+        </android.support.v4.widget.SwipeRefreshLayout>
 
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/addPostBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:menu_colorNormal="@color/colorAccent">
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/addTextPostBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:src="@drawable/post_text_icon"
+                app:fab_label="Text"
+                tools:scaleType="centerInside" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/addGalleryPostBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:src="@drawable/contact_relative"
+                app:fab_label="Gallery"/>
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/addCameraPostBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:src="@drawable/contact_relative"
+                app:fab_label="Camera"/>
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/addWebPostBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                android:src="@drawable/contact_relative"
+                app:fab_label="Web"/>
+        </com.github.clans.fab.FloatingActionMenu>
     </android.support.constraint.ConstraintLayout>
+
+
 </FrameLayout>
