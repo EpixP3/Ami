@@ -40,23 +40,30 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:menu_colorNormal="@color/colorAccent">
+            app:menu_colorNormal="@color/colorAccent"
+            app:menu_colorPressed="@color/colorAccent"
+            app:menu_colorRipple="@color/colorActive">
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/addTextPostBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="centerInside"
-                android:src="@drawable/post_text_icon"
+                android:src="@mipmap/ic_post_text_icon"
+                app:fab_colorNormal="#003777cb"
+                app:fab_showShadow="false"
+                app:fabSize="mini"
                 app:fab_label="Text"
+                app:fab_colorPressed="#003777cb"
                 tools:scaleType="centerInside" />
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/addGalleryPostBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="centerInside"
-                android:src="@drawable/contact_relative"
+                app:fab_showShadow="false"
+                android:src="@mipmap/ic_post_gallery_icon"
+                app:fab_colorPressed="#003777cb"
+                app:fab_colorNormal="#003777cb"
                 app:fab_label="Gallery"/>
 
             <com.github.clans.fab.FloatingActionButton
@@ -64,14 +71,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:scaleType="centerInside"
-                android:src="@drawable/contact_relative"
+                app:fab_colorNormal="#003777cb"
+                app:fab_colorPressed="#003777cb"
+                app:fab_showShadow="false"
+                android:src="@mipmap/ic_post_camera_icon"
                 app:fab_label="Camera"/>
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/addWebPostBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:scaleType="centerInside"
-                android:src="@drawable/contact_relative"
+                app:fab_colorNormal="#003777cb"
+                app:fab_colorPressed="#003777cb"
+                app:fab_showShadow="false"
+                android:src="@mipmap/ic_post_web_icon"
                 app:fab_label="Web"/>
         </com.github.clans.fab.FloatingActionMenu>
     </android.support.constraint.ConstraintLayout>
