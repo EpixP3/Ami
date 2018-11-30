@@ -1,4 +1,4 @@
-package com.f4pl0.ami.Structures;
+package com.f4pl0.ami.Utils;
 
 public class Contact {
 

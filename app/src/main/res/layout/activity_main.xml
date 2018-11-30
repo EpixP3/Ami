@@ -18,7 +18,7 @@
         app:menu="@menu/bottom_navigation_view" />
 
     <fragment
-        android:id="@+id/fragment"
+        android:id="@+id/mainFragment"
         android:name="com.f4pl0.ami.Fragments.BlankFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"

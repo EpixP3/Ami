@@ -12,9 +12,7 @@ import android.widget.TextView;
 
 import com.f4pl0.ami.R;
 import com.f4pl0.ami.SetupActivity;
-import com.f4pl0.ami.Structures.Contact;
-
-import java.util.Set;
+import com.f4pl0.ami.Utils.Contact;
 
 @SuppressLint("ValidFragment")
 public class ContactFragment extends Fragment {

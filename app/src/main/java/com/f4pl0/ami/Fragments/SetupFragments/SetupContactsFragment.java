@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 
 import com.f4pl0.ami.Fragments.ContactFragment;
 import com.f4pl0.ami.R;
-import com.f4pl0.ami.Structures.Contact;
+import com.f4pl0.ami.Utils.Contact;
 
 @SuppressLint("ValidFragment")
 public class SetupContactsFragment extends Fragment {

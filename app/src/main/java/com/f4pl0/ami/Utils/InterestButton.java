@@ -1,4 +1,4 @@
-package com.f4pl0.ami.Structures;
+package com.f4pl0.ami.Utils;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -6,7 +6,6 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 
-import com.f4pl0.ami.MainActivity;
 import com.f4pl0.ami.R;
 
 public class InterestButton extends android.support.v7.widget.AppCompatButton {
