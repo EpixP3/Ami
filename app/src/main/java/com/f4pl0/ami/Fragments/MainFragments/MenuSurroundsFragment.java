@@ -1,5 +1,6 @@
 package com.f4pl0.ami.Fragments.MainFragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.f4pl0.ami.NewPostActivity;
 import com.f4pl0.ami.R;
 import com.github.clans.fab.FloatingActionButton;
 
@@ -41,7 +43,36 @@ public class MenuSurroundsFragment extends Fragment {
         postAddTextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Clicked", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getContext(), NewPostActivity.class);
+                intent.putExtra("TYPE", "1");
+                startActivity(intent);
+            }
+        });
+        postAddGalleryBtn = fragmentView.findViewById(R.id.addGalleryPostBtn);
+        postAddGalleryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), NewPostActivity.class);
+                intent.putExtra("TYPE", "2");
+                startActivity(intent);
+            }
+        });
+        postAddCameraBtn = fragmentView.findViewById(R.id.addCameraPostBtn);
+        postAddCameraBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), NewPostActivity.class);
+                intent.putExtra("TYPE", "3");
+                startActivity(intent);
+            }
+        });
+        postAddWebBtn = fragmentView.findViewById(R.id.addWebPostBtn);
+        postAddWebBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), NewPostActivity.class);
+                intent.putExtra("TYPE", "4");
+                startActivity(intent);
             }
         });
         return fragmentView;
