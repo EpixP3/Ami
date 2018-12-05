@@ -29,6 +29,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <android.support.design.widget.TabLayout
+            android:id="@+id/chosePictureSourceTabLayout"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_marginTop="16dp"
@@ -48,6 +49,16 @@
                 android:background="#bfcbd9"
                 android:text="Pixabay" />
         </android.support.design.widget.TabLayout>
+
+        <fragment
+            android:id="@+id/pictureContainerFragment"
+            android:name="com.f4pl0.ami.Fragments.BlankFragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chosePictureSourceTabLayout" />
 
 
     </android.support.constraint.ConstraintLayout>

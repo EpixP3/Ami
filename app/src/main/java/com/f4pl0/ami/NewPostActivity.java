@@ -1,6 +1,7 @@
 package com.f4pl0.ami;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,9 +16,10 @@ public class NewPostActivity extends AppCompatActivity {
 
     ImageButton nextBtn;
     private int currentStep = 0;
-    private String postTextContent;
-    private String setupType;
-    private String postTextTitle;
+    private String postTextContent = "";
+    private String setupType = "";
+    private String postTextTitle = "";
+    private Bitmap postImage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,10 @@ public class NewPostActivity extends AppCompatActivity {
     }
     public void SetPostTitle(String postTextTitle){
         this.postTextTitle = postTextTitle;
+    }
+    public void SetPostImage(Bitmap postImage){
+        this.postImage = postImage;
+        //TODO NEXT STEP
     }
 
     @Override

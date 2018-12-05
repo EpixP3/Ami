@@ -25,18 +25,32 @@ public class SetupInterestsFragment extends Fragment {
         // Initialize components
         interestCategoryContainer = fragmentView.findViewById(R.id.interestCategoryContainerLyt);
 
-        String[] ints = new String[5];
-        ints[0] = "Programming";
-        ints[1] = "Loling";
-        ints[2] = "Football";
-        ints[3] = "Boxing";
-        ints[4] = "Whatever";
-        for(int i=0; i < 10; i ++){
-            FragmentManager fragmentManager = getFragmentManager ();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction ();
-            fragmentTransaction.add (R.id.interestCategoryContainerLyt, new SetupInterestsFragmentCategory("Category "+i,ints));
-            fragmentTransaction.commit ();
-        }
+        String[] Kunst = new String[11];
+        Kunst[0] = "Design";
+        Kunst[1] = "Mode / Fashion";
+        Kunst[2] = "Fotografie";
+        Kunst[3] = "Wohnen / Deko";
+        Kunst[4] = "Architektur";
+        Kunst[5] = "Street Art";
+        Kunst[6] = "Malerei";
+        Kunst[7] = "Theater";
+        Kunst[8] = "Tattoos / Piercing";
+        Kunst[9] = "Tanz";
+        Kunst[10] = "Gesang";
+        String[] Technologie = new String[8];
+        Technologie[0] = "Computer";
+        Technologie[1] = "Smartphones / Tablets";
+        Technologie[2] = "Software / Apps";
+        Technologie[3] = "Hardware";
+        Technologie[4] = "Wearables";
+        Technologie[5] = "Programmieren";
+        Technologie[6] = "Neue Technologien";
+        Technologie[7] = "Futurismus";
+
+        FragmentManager fragmentManager = getFragmentManager ();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction ();
+        fragmentTransaction.add (R.id.interestCategoryContainerLyt, new SetupInterestsFragmentCategory("Kunst",Kunst));
+        fragmentTransaction.commit ();
 
 
         return fragmentView;

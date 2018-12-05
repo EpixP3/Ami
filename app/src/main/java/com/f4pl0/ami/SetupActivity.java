@@ -401,7 +401,7 @@ public class SetupActivity extends FragmentActivity {
                 switch (count) {
                     case 1:
                         lm.removeUpdates(mLocationListener);
-                        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
+                        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
                         break;
                     case 2:
                         lm.removeUpdates(mLocationListener);
@@ -442,7 +442,7 @@ public class SetupActivity extends FragmentActivity {
                     //getApplicationContext().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
                     Log.d("LOCATION_SERVICES","ListSize: "+lm.getAllProviders().size());
-                    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+                    lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
                     return;
                 } else {
                     // permission denied, boo! Disable the
@@ -521,7 +521,7 @@ public class SetupActivity extends FragmentActivity {
         {
             mPhoneNumber =tMgr.getLine1Number();
         }
-        catch(NullPointerException ex)
+        catch(Exception ex)
         {
         }
 
