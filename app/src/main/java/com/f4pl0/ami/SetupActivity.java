@@ -85,6 +85,7 @@ public class SetupActivity extends FragmentActivity {
         transaction.commit();
 
         //Initialize stuff
+        getSharedPreferences("interests", Context.MODE_PRIVATE).edit().putString("user.interests", "").commit();
         progress = new ProgressDialog(this);
         progress.setTitle("Please wait a bit");
         progress.setMessage("Loading...");
@@ -276,7 +277,7 @@ public class SetupActivity extends FragmentActivity {
                                 params.put("location", location);
                                 params.put("contacts", contactsJSONArray.toString());
                                 params.put("phone", phoneNumber.replace(" ", ""));
-                                params.put("interests", interests);
+                                params.put("interests", interests.substring(1));
                                 return params;
                             }
                         };
@@ -359,25 +360,31 @@ public class SetupActivity extends FragmentActivity {
 
     private void getLocation(double lat, double lng) {
         //Method for locating the user's city and state based on coordinates
-        Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         List<Address> addresses = null;
         try {
-            addresses = gcd.getFromLocation(lat, lng, 5);
+            addresses = geocoder.getFromLocation(lat, lng, 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (addresses.size() > 0) {
-            for (int i = 0; i < addresses.size(); i++) {
-                String city = addresses.get(i).getLocality();
-                String country = addresses.get(0).getCountryName();
-                if (city != null && country != null) {
-                    //Store city and state in a variable and go to next step
-                    String loc = city + ", " + country;
-                    setLocation(loc);
-                    ((SetupLocationFragment) fragment).nextStep();
-                    break;
+        if(addresses != null) {
+            if (addresses.size() > 0) {
+                for (int i = 0; i < addresses.size(); i++) {
+                    String city = addresses.get(i).getLocality();
+                    String country = addresses.get(0).getCountryName();
+                    if (city != null && country != null) {
+                        //Store city and state in a variable and go to next step
+                        String loc = city + ", " + country;
+                        setLocation(loc);
+                        ((SetupLocationFragment) fragment).nextStep();
+                        break;
+                    }
                 }
             }
+        }else{
+            dismissLoading();
+            Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please Restart Your device and try again.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -392,8 +399,8 @@ public class SetupActivity extends FragmentActivity {
                 //Extract the coordinates from it
                 double longitude = location.getLongitude();
                 double latitude = location.getLatitude();
-                getLocation(latitude, longitude);
                 lm.removeUpdates(mLocationListener);
+                getLocation(latitude, longitude);
                 dismissLoading();
             } else {
                 //Try all of the possible methods for location getting
@@ -401,7 +408,7 @@ public class SetupActivity extends FragmentActivity {
                 switch (count) {
                     case 1:
                         lm.removeUpdates(mLocationListener);
-                        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+                        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
                         break;
                     case 2:
                         lm.removeUpdates(mLocationListener);
@@ -442,7 +449,11 @@ public class SetupActivity extends FragmentActivity {
                     //getApplicationContext().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
                     Log.d("LOCATION_SERVICES","ListSize: "+lm.getAllProviders().size());
-                    lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
+                    try {
+                        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+                    }catch (IllegalArgumentException e){
+                        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
+                    }
                     return;
                 } else {
                     // permission denied, boo! Disable the
@@ -552,4 +563,5 @@ public class SetupActivity extends FragmentActivity {
             ((SetupPhoneFragment) fragment).changeFragment(mPhoneNumber);
         }
     }
+
 }

@@ -2,23 +2,30 @@ package com.f4pl0.ami;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.f4pl0.ami.Fragments.MainFragments.MenuProfileFragment;
 import com.f4pl0.ami.Fragments.MainFragments.MenuSurroundsFragment;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +34,9 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog progress;
     BottomNavigationView bottomNavigationView;
     MenuSurroundsFragment menuSurroundsFragment;
+    MenuProfileFragment menuProfileFragment;
     Fragment currentFragment;
+    String session;
     int currentFragmentNo = 0;
 
     @Override
@@ -41,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
 
         //Get the stored session
-        final String session = getApplicationContext().getSharedPreferences("shared",MODE_PRIVATE).getString("SessionID","");
+        session = getApplicationContext().getSharedPreferences("shared",MODE_PRIVATE).getString("SessionID","");
         // Check if user has a storred session
         if(!session.isEmpty()){
             //Check if storred session is valid
@@ -74,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }catch(Exception e){
                                 Toast.makeText(MainActivity.this, "There was an error." , Toast.LENGTH_SHORT).show();
+                                e.printStackTrace();
                                 finish();
                             }
                         }
@@ -109,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
         //Method for initializing main components
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         menuSurroundsFragment = new MenuSurroundsFragment();
+        menuProfileFragment = new MenuProfileFragment();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -152,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.navigation_menu_profile:
                         if(currentFragmentNo == 4)return false;
-                        currentFragment = menuSurroundsFragment;
+                        currentFragment = menuProfileFragment;
                         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         currentFragmentNo = 4;
                         break;
@@ -177,5 +188,124 @@ public class MainActivity extends AppCompatActivity {
     public void dismissLoading(){
         //Method for dismissing the possibly ongoing progress dialog
         progress.dismiss();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri filePath = data.getData();
+            if(menuProfileFragment.profilePicRequest){
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    showLoading("Uploading, please wait...");
+
+                    //converting image to base64 string
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] imageBytes = baos.toByteArray();
+                    final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+
+                    //sending image to server
+                    StringRequest request = new StringRequest(Request.Method.POST, "http://ami.earth/android/api/uploadImage.php", new Response.Listener<String>(){
+                        @Override
+                        public void onResponse(String s) {
+                            dismissLoading();
+                            if(s.contains("ok")){
+                                menuProfileFragment = new MenuProfileFragment();
+                                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                currentFragment = menuProfileFragment;
+                                transaction.replace(R.id.mainFragment, currentFragment);
+                                transaction.addToBackStack(null);
+                                transaction.commit();
+                            }else{
+                                Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    },new Response.ErrorListener(){
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            dismissLoading();
+                            Toast.makeText(MainActivity.this, "Some error occurred -> "+volleyError, Toast.LENGTH_LONG).show();;
+                        }
+                    }) {
+                        //adding parameters to send
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            Map<String, String> parameters = new HashMap<String, String>();
+                            parameters.put("image", imageString);
+                            parameters.put("session", session);
+                            parameters.put("type", "profile");
+                            return parameters;
+                        }
+                    };
+
+                    RequestQueue rQueue = Volley.newRequestQueue(MainActivity.this);
+                    rQueue.add(request);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }else{
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    showLoading("Uploading, please wait...");
+
+                    //converting image to base64 string
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] imageBytes = baos.toByteArray();
+                    final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+
+                    //sending image to server
+                    StringRequest request = new StringRequest(Request.Method.POST, "http://ami.earth/android/api/uploadImage.php", new Response.Listener<String>(){
+                        @Override
+                        public void onResponse(String s) {
+                            dismissLoading();
+                            if(s.contains("ok")){
+                                menuProfileFragment = new MenuProfileFragment();
+                                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                currentFragment = menuProfileFragment;
+                                transaction.replace(R.id.mainFragment, currentFragment);
+                                transaction.addToBackStack(null);
+                                transaction.commit();
+                            }else{
+                                Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    },new Response.ErrorListener(){
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            dismissLoading();
+                            Toast.makeText(MainActivity.this, "Some error occurred -> "+volleyError, Toast.LENGTH_LONG).show();;
+                        }
+                    }) {
+                        //adding parameters to send
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            Map<String, String> parameters = new HashMap<String, String>();
+                            parameters.put("image", imageString);
+                            parameters.put("session", session);
+                            parameters.put("type", "cover");
+                            return parameters;
+                        }
+                    };
+
+                    RequestQueue rQueue = Volley.newRequestQueue(MainActivity.this);
+                    rQueue.add(request);
+
+
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+    public void reloadProfileFragment(){
+        menuProfileFragment = new MenuProfileFragment();
     }
 }

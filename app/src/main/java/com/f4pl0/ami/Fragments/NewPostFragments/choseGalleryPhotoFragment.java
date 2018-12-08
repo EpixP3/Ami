@@ -50,16 +50,17 @@ public class choseGalleryPhotoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_chose_gallery_photo, container, false);
-
+        i=0;
         //Initialize components
         gridGalleryPhotoLayout = fragmentView.findViewById(R.id.gridGalleryPhotoLayout);
         galleryScrollView = fragmentView.findViewById(R.id.galleryScrollView);
         final Thread thread = new Thread(new Runnable() {
             @Override
-            public void run() {
+            public synchronized void run() {
                 try {
+                    ((NewPostActivity)getActivity()).showLoading("Loading pictures...");
+                    wait(500);
                     for (int a = 0; a < 15; a++) {
-
                         final ImageButton imageButton = new ImageButton(getContext());
                         GridLayout.LayoutParams parem = new GridLayout.LayoutParams(GridLayout.spec(GridLayout.UNDEFINED, 1f), GridLayout.spec(GridLayout.UNDEFINED, 1f));
                         //imageButton.getRootView().setLayoutParams(parem);
@@ -89,11 +90,13 @@ public class choseGalleryPhotoFragment extends Fragment {
                                 settingsDialog.show();
                             }
                         });
-                        gridGalleryPhotoLayout.addView(imageButton);
+                        addViewToGridView(imageButton);
                         i++;
                     }
+                    ((NewPostActivity)getActivity()).dismissLoading();
                 }catch (Exception e){
-
+                    ((NewPostActivity)getActivity()).dismissLoading();
+                    e.printStackTrace();
                 }
             }
         });
@@ -115,8 +118,6 @@ public class choseGalleryPhotoFragment extends Fragment {
                 }
             }
         });
-
-
         thread.run();
 
         return fragmentView;
@@ -156,5 +157,8 @@ public class choseGalleryPhotoFragment extends Fragment {
             listOfAllImages.add(PathOfImage);
         }
         return listOfAllImages;
+    }
+    public void addViewToGridView(View viewToAdd){
+        gridGalleryPhotoLayout.addView(viewToAdd);
     }
 }

@@ -42,7 +42,7 @@ public class SetupInterestsFragmentCategory extends Fragment {
 
         catName.setText(name);
         for(int i = 0; i < interests.length; i++){
-            interestContainer.addView(new InterestButton(getContext(), interests[i]));
+            interestContainer.addView(new InterestButton(getContext(), interests[i], false));
             TextView sample = new TextView(getContext());
             sample.setText("a");
             sample.setTextColor(Color.TRANSPARENT);
