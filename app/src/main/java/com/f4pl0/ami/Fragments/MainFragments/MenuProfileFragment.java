@@ -63,6 +63,7 @@ public class MenuProfileFragment extends Fragment {
         //#####################
         //###GET THE PROFILE###
         //#####################
+
         //Get the stored session
         super.onCreate(savedInstanceState);
         final String session = getContext().getSharedPreferences("shared", MainActivity.MODE_PRIVATE).getString("SessionID", "");

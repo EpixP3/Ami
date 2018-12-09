@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
@@ -442,17 +443,19 @@ public class SetupActivity extends FragmentActivity {
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
-                showLoading("Getting your location...");
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showLoading("Getting your location...");
                     //showLoading("Getting your location...");
                     //getApplicationContext().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+
                     Log.d("LOCATION_SERVICES","ListSize: "+lm.getAllProviders().size());
                     try {
-                        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+                        lm.requestLocationUpdates(lm.getBestProvider(new Criteria(), true), 0, 0, mLocationListener);
                     }catch (IllegalArgumentException e){
-                        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocationListener);
+                        dismissLoading();
                     }
                     return;
                 } else {
