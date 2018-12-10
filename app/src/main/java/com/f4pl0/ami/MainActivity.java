@@ -249,12 +249,33 @@ public class MainActivity extends AppCompatActivity {
                 }
             }else{
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    Bitmap srcBmp, dstBmp;
+                    srcBmp  = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    if (srcBmp.getWidth() >= srcBmp.getHeight()){
+
+                        dstBmp = Bitmap.createBitmap(
+                                srcBmp,
+                                srcBmp.getWidth()/2 - srcBmp.getHeight()/2,
+                                0,
+                                srcBmp.getHeight(),
+                                srcBmp.getHeight()
+                        );
+
+                    }else{
+
+                        dstBmp = Bitmap.createBitmap(
+                                srcBmp,
+                                0,
+                                srcBmp.getHeight()/2 - srcBmp.getWidth()/2,
+                                srcBmp.getWidth(),
+                                srcBmp.getWidth()
+                        );
+                    }
                     showLoading("Uploading, please wait...");
 
                     //converting image to base64 string
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    getResizedBitmap(dstBmp, 512, 512).compress(Bitmap.CompressFormat.JPEG, 75, baos);
                     byte[] imageBytes = baos.toByteArray();
                     final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
@@ -304,6 +325,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+    }
+    public Bitmap getResizedBitmap(Bitmap image, int bitmapWidth, int bitmapHeight) {
+        return Bitmap.createScaledBitmap(image, bitmapWidth, bitmapHeight, true);
     }
     public void reloadProfileFragment(){
         menuProfileFragment = new MenuProfileFragment();
