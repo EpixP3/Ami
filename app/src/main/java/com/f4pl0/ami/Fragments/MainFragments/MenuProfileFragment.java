@@ -196,7 +196,7 @@ public class MenuProfileFragment extends Fragment {
 
 
     }
-    public class MyAsync extends AsyncTask<Void, Void, Bitmap> {
+    public static class MyAsync extends AsyncTask<Void, Void, Bitmap> {
         String src;
         public MyAsync(String src){
             this.src = src;

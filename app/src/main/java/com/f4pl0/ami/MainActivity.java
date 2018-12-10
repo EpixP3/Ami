@@ -130,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
                         currentFragment = menuSurroundsFragment;
                         transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         currentFragmentNo = 0;
+                        transaction.replace(R.id.mainFragment, currentFragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
                         break;
                     case R.id.navigation_menu_discover:
                         if(currentFragmentNo == 1)return false;
@@ -140,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         }
                         currentFragmentNo = 1;
+                        transaction.replace(R.id.mainFragment, currentFragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
                         break;
                     case R.id.navigation_menu_matching:
                         if(currentFragmentNo == 2)return false;
@@ -150,6 +156,9 @@ public class MainActivity extends AppCompatActivity {
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         }
                         currentFragmentNo = 2;
+                        transaction.replace(R.id.mainFragment, currentFragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
                         break;
                     case R.id.navigation_menu_chats:
                         if(currentFragmentNo == 3)return false;
@@ -160,17 +169,21 @@ public class MainActivity extends AppCompatActivity {
                             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         }
                         currentFragmentNo = 3;
+                        transaction.replace(R.id.mainFragment, currentFragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
                         break;
                     case R.id.navigation_menu_profile:
                         if(currentFragmentNo == 4)return false;
                         currentFragment = menuProfileFragment;
                         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         currentFragmentNo = 4;
+                        transaction.replace(R.id.mainFragment, currentFragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
                         break;
                 }
-                transaction.replace(R.id.mainFragment, currentFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+
                 return true;
             }
         });

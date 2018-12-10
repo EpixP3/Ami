@@ -1,7 +1,9 @@
 package com.f4pl0.ami.Fragments.MainFragments;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -36,6 +38,7 @@ public class MenuSurroundsFragment extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
     FloatingActionButton postAddTextBtn, postAddGalleryBtn, postAddCameraBtn, postAddWebBtn;
     String session;
+    PostFragment[] postFragments = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -91,6 +94,10 @@ public class MenuSurroundsFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        ClearPosts();
+        if(!GetPostsLocal()){
+            GetPosts();
+        }
         return fragmentView;
     }
     private void ClearPosts(){
@@ -98,7 +105,7 @@ public class MenuSurroundsFragment extends Fragment {
     }
     private void GetPosts(){
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = "http://ami.earth/android/api/getPostsSurroundings-.php";
+        String url = "http://ami.earth/android/api/getPostsSurroundings.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -116,16 +123,18 @@ public class MenuSurroundsFragment extends Fragment {
                                 Log.d("RESPONSE", response);
                                 JSONObject postsObj = new JSONObject(response);
                                 JSONArray posts = postsObj.getJSONArray("postsArray");
+                                postFragments = new PostFragment[posts.length()];
                                 for(int i=0; i < posts.length(); i++){
                                     JSONObject post = posts.getJSONObject(i);
-                                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                                    transaction.add(R.id.postsContainer, new PostFragment(
+                                    postFragments[i] = new PostFragment(
                                             post.getString("title"),
                                             post.getString("content"),
                                             post.getString("image"),
                                             post.getString("posterName"),
                                             post.getString("posterLocation"),
-                                            post.getString("posterImage")));
+                                            post.getString("posterImage"));
+                                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                                    transaction.add(R.id.postsContainer, postFragments[i]);
                                     transaction.addToBackStack(null);
                                     transaction.commit();
                                 }
@@ -151,8 +160,18 @@ public class MenuSurroundsFragment extends Fragment {
             }
         };
         queue.add(postRequest);
-
-
-
+    }
+    private boolean GetPostsLocal(){
+        if(postFragments != null){
+            for(int i=0; i < postFragments.length; i++){
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.add(R.id.postsContainer, postFragments[i]);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+            return true;
+        }else{
+            return false;
+        }
     }
 }
