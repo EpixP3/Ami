@@ -58,6 +58,7 @@ public class MenuSurroundsFragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+        swipeRefreshLayout.setRefreshing(true);
         postAddTextBtn = fragmentView.findViewById(R.id.addTextPostBtn);
         postAddTextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,12 +96,34 @@ public class MenuSurroundsFragment extends Fragment {
             }
         });
         ClearPosts();
-        if(!GetPostsLocal()){
-            GetPosts();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public synchronized void run() {
+                try{
+                    wait(500);
+                    if(!GetPostsLocal()){
+                        GetPosts();
+                    }
+                    swipeRefreshLayout.setRefreshing(false);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
         return fragmentView;
     }
     private void ClearPosts(){
+        if(postFragments != null){
+            for(int i=0; i < postFragments.length; i++){
+                if(postFragments[i].isAdded()) {
+                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.remove(postFragments[i]);
+                    //transaction.addToBackStack(null);
+                    transaction.commit();
+                }
+            }
+        }
         postsContainer.removeAllViews();
     }
     private void GetPosts(){
@@ -135,7 +158,7 @@ public class MenuSurroundsFragment extends Fragment {
                                             post.getString("posterImage"));
                                     FragmentTransaction transaction = getFragmentManager().beginTransaction();
                                     transaction.add(R.id.postsContainer, postFragments[i]);
-                                    transaction.addToBackStack(null);
+                                    //transaction.addToBackStack(null);
                                     transaction.commit();
                                 }
                             }
@@ -164,10 +187,15 @@ public class MenuSurroundsFragment extends Fragment {
     private boolean GetPostsLocal(){
         if(postFragments != null){
             for(int i=0; i < postFragments.length; i++){
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.add(R.id.postsContainer, postFragments[i]);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                    if (!postFragments[i].isAdded()) {
+                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                        transaction.add(R.id.postsContainer, postFragments[i]);
+                        transaction.commit();
+                    } else {
+                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                        transaction.show(postFragments[i]);
+                        transaction.commit();
+                    }
             }
             return true;
         }else{
