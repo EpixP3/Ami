@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -193,6 +194,7 @@ public class NewPostActivity extends AppCompatActivity {
         //converting image to base64 string
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
+            photo = scaleBitmapContent(photo);
             photo.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         }catch (Exception e){
             flag = true;
@@ -239,5 +241,62 @@ public class NewPostActivity extends AppCompatActivity {
 
         RequestQueue rQueue = Volley.newRequestQueue(getApplicationContext());
         rQueue.add(request);
+    }
+    private Bitmap scaleBitmapContent(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 512;
+        int maxHeight = 512;
+
+        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+        if (width > height) {
+            // landscape-
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
+    }private Bitmap scaleBitmapProfile(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 256;
+        int maxHeight = 256;
+
+        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+        if (width > height) {
+            // landscape-
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
     }
 }

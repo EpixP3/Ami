@@ -1,6 +1,7 @@
 package com.f4pl0.ami.Fragments.MainFragments;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.f4pl0.ami.PostActivity;
 import com.f4pl0.ami.R;
 
 import java.io.IOException;
@@ -47,10 +49,22 @@ public class PostFragment extends Fragment {
         //Initialize components
         posterNameTxt = fragmentView.findViewById(R.id.post_nameTxt);
         posterLocationTxt = fragmentView.findViewById(R.id.post_locationTxt);
-        posterImageImg = fragmentView.findViewById(R.id.profileProfileImg);
+        posterImageImg = fragmentView.findViewById(R.id.postActivity_profileImg);
         titleTxt = fragmentView.findViewById(R.id.post_titleTxt);
         imageImg = fragmentView.findViewById(R.id.post_contentImg);
-
+        imageImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), PostActivity.class);
+                intent.putExtra("contentImg", profileBitmap);
+                intent.putExtra("posterImg", postBitmap);
+                intent.putExtra("contentTxt",content);
+                intent.putExtra("posterName", posterName);
+                intent.putExtra("posterLocation", posterLocation);
+                intent.putExtra("title", title);
+                startActivity(intent);
+            }
+        });
         //Set values
         posterNameTxt.setText(posterName);
         posterLocationTxt.setText(posterLocation);
@@ -66,10 +80,12 @@ public class PostFragment extends Fragment {
                 protected void onPostExecute(Bitmap bmp) {
                     super.onPostExecute(bmp);
                     postBitmap = bmp;
-                    posterImageImg.setImageBitmap(bmp);
+                    postBitmap = scaleBitmapContent(postBitmap);
+                    posterImageImg.setImageBitmap(postBitmap);
                 }
             };
             obj.execute();
+        }else{
         }
         }
         if(profileBitmap != null){
@@ -83,10 +99,13 @@ public class PostFragment extends Fragment {
                     protected void onPostExecute(Bitmap bmp) {
                         super.onPostExecute(bmp);
                         profileBitmap = bmp;
-                        imageImg.setImageBitmap(bmp);
+                        profileBitmap = scaleBitmapProfile(bmp);
+                        imageImg.setImageBitmap(profileBitmap);
                     }
                 };
                 a.execute();
+            }else{
+                imageImg.setVisibility(View.GONE);
             }
         }
         titleTxt.setText(title);
@@ -117,5 +136,62 @@ public class PostFragment extends Fragment {
             }
 
         }
+    }
+    private Bitmap scaleBitmapContent(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 512;
+        int maxHeight = 512;
+
+        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+        if (width > height) {
+            // landscape-
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
+    }private Bitmap scaleBitmapProfile(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 256;
+        int maxHeight = 256;
+
+        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+        if (width > height) {
+            // landscape-
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
     }
 }

@@ -23,7 +23,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profileProfileImg"
+            android:id="@+id/postActivity_profileImg"
             android:layout_width="0dp"
             android:layout_height="100dp"
             android:layout_marginStart="100dp"
@@ -55,7 +55,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profileProfileImg" />
+            app:layout_constraintTop_toBottomOf="@+id/postActivity_profileImg" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout2"

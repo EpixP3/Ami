@@ -1,25 +1,18 @@
 package com.f4pl0.ami.Fragments.MainFragments;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.AbsListView;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,9 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.f4pl0.ami.Fragments.NewPostFragments.choosePixabayPhotoFragment;
 import com.f4pl0.ami.MainActivity;
-import com.f4pl0.ami.NewPostActivity;
 import com.f4pl0.ami.R;
 import com.f4pl0.ami.SetupActivity;
 import com.f4pl0.ami.Utils.InterestButton;
@@ -119,7 +110,7 @@ public class MenuProfileFragment extends Fragment {
         profileOccupationTxt = fragmentView.findViewById(R.id.profileOccupationTxt);
         profileLocationTxt = fragmentView.findViewById(R.id.profileLocationTxt);
         profileQuoteTxt = fragmentView.findViewById(R.id.profileQuoteTxt);
-        profileProfileImg = fragmentView.findViewById(R.id.profileProfileImg);
+        profileProfileImg = fragmentView.findViewById(R.id.postActivity_profileImg);
         profileCoverImg = fragmentView.findViewById(R.id.profileCoverImg);
         profileInterestsLyt = fragmentView.findViewById(R.id.profileInterestsLyt);
 

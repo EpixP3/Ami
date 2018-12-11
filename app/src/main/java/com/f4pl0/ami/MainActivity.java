@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Toast.makeText(MainActivity.this, "There was an error connecting to the server.", Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     }
             ) {
@@ -211,12 +213,33 @@ public class MainActivity extends AppCompatActivity {
             Uri filePath = data.getData();
             if(menuProfileFragment.profilePicRequest){
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    Bitmap srcBmp, dstBmp;
+                    srcBmp  = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    Log.d("SRCBITMAP", "Height: "+ srcBmp.getHeight() +"  Width: "+srcBmp.getWidth());
+                    if (srcBmp.getWidth() >= srcBmp.getHeight()){
+                        dstBmp = Bitmap.createBitmap(
+                                srcBmp,
+                                srcBmp.getWidth()/2 - srcBmp.getHeight()/2,
+                                0,
+                                srcBmp.getHeight(),
+                                srcBmp.getHeight()
+                        );
+
+                    }else{
+
+                        dstBmp = Bitmap.createBitmap(
+                                srcBmp,
+                                0,
+                                srcBmp.getHeight()/2 - srcBmp.getWidth()/2,
+                                srcBmp.getWidth(),
+                                srcBmp.getWidth()
+                        );
+                    }
                     showLoading("Uploading, please wait...");
 
                     //converting image to base64 string
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    scaleBitmapProfile(dstBmp).compress(Bitmap.CompressFormat.JPEG, 100, baos);
                     byte[] imageBytes = baos.toByteArray();
                     final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
@@ -264,31 +287,15 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Bitmap srcBmp, dstBmp;
                     srcBmp  = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                    if (srcBmp.getWidth() >= srcBmp.getHeight()){
+                    Log.d("SRCBITMAP", "Height: "+ srcBmp.getHeight() +"  Width: "+srcBmp.getWidth());
+                    dstBmp = scaleBitmapCover(srcBmp);
 
-                        dstBmp = Bitmap.createBitmap(
-                                srcBmp,
-                                srcBmp.getWidth()/2 - srcBmp.getHeight()/2,
-                                0,
-                                srcBmp.getHeight(),
-                                srcBmp.getHeight()
-                        );
-
-                    }else{
-
-                        dstBmp = Bitmap.createBitmap(
-                                srcBmp,
-                                0,
-                                srcBmp.getHeight()/2 - srcBmp.getWidth()/2,
-                                srcBmp.getWidth(),
-                                srcBmp.getWidth()
-                        );
-                    }
+                    Log.d("DSTBITMAP", "Height: "+ dstBmp.getHeight() +"  Width: "+dstBmp.getWidth());
                     showLoading("Uploading, please wait...");
 
                     //converting image to base64 string
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    getResizedBitmap(dstBmp, 512, 512).compress(Bitmap.CompressFormat.JPEG, 75, baos);
+                    dstBmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                     byte[] imageBytes = baos.toByteArray();
                     final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
@@ -344,5 +351,64 @@ public class MainActivity extends AppCompatActivity {
     }
     public void reloadProfileFragment(){
         menuProfileFragment = new MenuProfileFragment();
+    }
+
+    private Bitmap scaleBitmapProfile(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 256;
+        int maxHeight = 256;
+
+        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+        if (width > height) {
+            // landscape-
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
+    }
+    private Bitmap scaleBitmapCover(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 1024;
+        int maxHeight = 1024;
+
+        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+        if (width > height) {
+            // landscape-
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
     }
 }

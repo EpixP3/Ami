@@ -3,6 +3,7 @@ package com.f4pl0.ami.Fragments.MainFragments;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -72,24 +73,33 @@ public class MenuSurroundsFragment extends Fragment {
         postAddGalleryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), NewPostActivity.class);
-                intent.putExtra("TYPE", "2");
-                startActivity(intent);
+                //TODO GALLERY PICK
+                Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(pickPhoto , 1);
+
+                //Intent intent = new Intent(getContext(), NewPostActivity.class);
+                //intent.putExtra("TYPE", "2");
+                //startActivity(intent);
             }
         });
         postAddCameraBtn = fragmentView.findViewById(R.id.addCameraPostBtn);
         postAddCameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), NewPostActivity.class);
-                intent.putExtra("TYPE", "3");
-                startActivity(intent);
+                //TODO CAMERA PICK
+                Intent pickPhoto = new Intent(Intent.ACTION_CAMERA_BUTTON);
+                startActivityForResult(pickPhoto , 1);
+                //Intent intent = new Intent(getContext(), NewPostActivity.class);
+                //intent.putExtra("TYPE", "3");
+                //startActivity(intent);
             }
         });
         postAddWebBtn = fragmentView.findViewById(R.id.addWebPostBtn);
         postAddWebBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO WEB PICK
                 Intent intent = new Intent(getContext(), NewPostActivity.class);
                 intent.putExtra("TYPE", "4");
                 startActivity(intent);
