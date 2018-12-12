@@ -2,12 +2,16 @@ package com.f4pl0.ami;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.ByteArrayOutputStream;
 
 public class PostActivity extends AppCompatActivity {
     String posterName, posterLocation, title, content;
@@ -38,8 +42,8 @@ public class PostActivity extends AppCompatActivity {
 
         //Get data needed for the post
         Intent intent = getIntent();
-        posterImgBmp = intent.getParcelableExtra("posterImg");
-        contentImgBmp = intent.getParcelableExtra("contentImg");
+        posterImgBmp = decodeBase64(intent.getStringExtra("posterImg"));
+        contentImgBmp = decodeBase64(intent.getStringExtra("contentImg"));
         posterName =  intent.getStringExtra("posterName");
         title =  intent.getStringExtra("title");
         posterLocation =  intent.getStringExtra("posterLocation");
@@ -52,5 +56,17 @@ public class PostActivity extends AppCompatActivity {
         contentTxt.setText(content);
         contentImg.setImageBitmap(contentImgBmp);
         posterLocationTxt.setText(posterLocation);
+    }
+    public static String encodeToBase64(Bitmap image, Bitmap.CompressFormat compressFormat, int quality)
+    {
+        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+        image.compress(compressFormat, quality, byteArrayOS);
+        return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
+    }
+
+    public static Bitmap decodeBase64(String input)
+    {
+        byte[] decodedBytes = Base64.decode(input, 0);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 }

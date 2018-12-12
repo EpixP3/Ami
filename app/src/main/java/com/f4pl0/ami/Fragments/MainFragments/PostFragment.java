@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import com.f4pl0.ami.PostActivity;
 import com.f4pl0.ami.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -56,8 +58,8 @@ public class PostFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), PostActivity.class);
-                intent.putExtra("contentImg", profileBitmap);
-                intent.putExtra("posterImg", postBitmap);
+                intent.putExtra("contentImg", encodeToBase64(profileBitmap, Bitmap.CompressFormat.JPEG, 100));
+                intent.putExtra("posterImg", encodeToBase64(postBitmap, Bitmap.CompressFormat.JPEG, 100));
                 intent.putExtra("contentTxt",content);
                 intent.putExtra("posterName", posterName);
                 intent.putExtra("posterLocation", posterLocation);
@@ -80,7 +82,7 @@ public class PostFragment extends Fragment {
                 protected void onPostExecute(Bitmap bmp) {
                     super.onPostExecute(bmp);
                     postBitmap = bmp;
-                    postBitmap = scaleBitmapContent(postBitmap);
+                    postBitmap = scaleBitmapProfile(postBitmap);
                     posterImageImg.setImageBitmap(postBitmap);
                 }
             };
@@ -99,7 +101,7 @@ public class PostFragment extends Fragment {
                     protected void onPostExecute(Bitmap bmp) {
                         super.onPostExecute(bmp);
                         profileBitmap = bmp;
-                        profileBitmap = scaleBitmapProfile(bmp);
+                        profileBitmap = scaleBitmapContent(bmp);
                         imageImg.setImageBitmap(profileBitmap);
                     }
                 };
@@ -138,60 +140,80 @@ public class PostFragment extends Fragment {
         }
     }
     private Bitmap scaleBitmapContent(Bitmap bm) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        int maxWidth = 512;
-        int maxHeight = 512;
+        try {
+            int width = bm.getWidth();
+            int height = bm.getHeight();
+            int maxWidth = 512;
+            int maxHeight = 512;
 
-        Log.v("Pictures", "Width and height are " + width + "--" + height);
+            Log.v("Pictures", "Width and height are " + width + "--" + height);
 
-        if (width > height) {
-            // landscape-
-            float ratio = (float) width / maxWidth;
-            width = maxWidth;
-            height = (int)(height / ratio);
-        } else if (height > width) {
-            // portrait
-            float ratio = (float) height / maxHeight;
-            height = maxHeight;
-            width = (int)(width / ratio);
-        } else {
-            // square
-            height = maxHeight;
-            width = maxWidth;
+            if (width > height) {
+                // landscape-
+                float ratio = (float) width / maxWidth;
+                width = maxWidth;
+                height = (int) (height / ratio);
+            } else if (height > width) {
+                // portrait
+                float ratio = (float) height / maxHeight;
+                height = maxHeight;
+                width = (int) (width / ratio);
+            } else {
+                // square
+                height = maxHeight;
+                width = maxWidth;
+            }
+
+            Log.v("Pictures", "after scaling Width and heig-ht are " + width + "--" + height);
+
+            bm = Bitmap.createScaledBitmap(bm, width, height, true);
+            return bm;
+        }catch(Exception e){
+            return null;
         }
-
-        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
-
-        bm = Bitmap.createScaledBitmap(bm, width, height, true);
-        return bm;
     }private Bitmap scaleBitmapProfile(Bitmap bm) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        int maxWidth = 256;
-        int maxHeight = 256;
+        try {
+            int width = bm.getWidth();
+            int height = bm.getHeight();
+            int maxWidth = 256;
+            int maxHeight = 256;
 
-        Log.v("Pictures", "Width and height are " + width + "--" + height);
+            Log.v("Pictures", "Width and height are " + width + "--" + height);
 
-        if (width > height) {
-            // landscape-
-            float ratio = (float) width / maxWidth;
-            width = maxWidth;
-            height = (int)(height / ratio);
-        } else if (height > width) {
-            // portrait
-            float ratio = (float) height / maxHeight;
-            height = maxHeight;
-            width = (int)(width / ratio);
-        } else {
-            // square
-            height = maxHeight;
-            width = maxWidth;
+            if (width > height) {
+                // landscape-
+                float ratio = (float) width / maxWidth;
+                width = maxWidth;
+                height = (int) (height / ratio);
+            } else if (height > width) {
+                // portrait
+                float ratio = (float) height / maxHeight;
+                height = maxHeight;
+                width = (int) (width / ratio);
+            } else {
+                // square
+                height = maxHeight;
+                width = maxWidth;
+            }
+
+            Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+
+            bm = Bitmap.createScaledBitmap(bm, width, height, true);
+            return bm;
+        }catch(Exception e){
+            return null;
         }
+    }
+    public static String encodeToBase64(Bitmap image, Bitmap.CompressFormat compressFormat, int quality)
+    {
+        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+        image.compress(compressFormat, quality, byteArrayOS);
+        return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
+    }
 
-        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
-
-        bm = Bitmap.createScaledBitmap(bm, width, height, true);
-        return bm;
+    public static Bitmap decodeBase64(String input)
+    {
+        byte[] decodedBytes = Base64.decode(input, 0);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 }
