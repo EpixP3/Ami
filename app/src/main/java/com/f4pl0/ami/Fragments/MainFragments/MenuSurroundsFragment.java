@@ -9,7 +9,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -25,6 +27,9 @@ import com.f4pl0.ami.MainActivity;
 import com.f4pl0.ami.NewPostActivity;
 import com.f4pl0.ami.R;
 import com.f4pl0.ami.SetupActivity;
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.github.clans.fab.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -32,14 +37,16 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class MenuSurroundsFragment extends Fragment {
 
+    static final int REQUEST_IMAGE_CAPTURE = 121;
     LinearLayout postsContainer;
     SwipeRefreshLayout swipeRefreshLayout;
     FloatingActionButton postAddTextBtn, postAddGalleryBtn, postAddCameraBtn, postAddWebBtn;
     String session;
-    PostFragment[] postFragments = null;
+    public PostFragment[] postFragments = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -73,47 +80,43 @@ public class MenuSurroundsFragment extends Fragment {
         postAddGalleryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO GALLERY PICK
                 Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhoto , 1);
-
-                //Intent intent = new Intent(getContext(), NewPostActivity.class);
-                //intent.putExtra("TYPE", "2");
-                //startActivity(intent);
+                getActivity().startActivityForResult(pickPhoto , 122);
             }
         });
         postAddCameraBtn = fragmentView.findViewById(R.id.addCameraPostBtn);
         postAddCameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO CAMERA PICK
-                Intent pickPhoto = new Intent(Intent.ACTION_CAMERA_BUTTON);
-                startActivityForResult(pickPhoto , 1);
-                //Intent intent = new Intent(getContext(), NewPostActivity.class);
-                //intent.putExtra("TYPE", "3");
-                //startActivity(intent);
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    getActivity().startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                }
+
             }
         });
         postAddWebBtn = fragmentView.findViewById(R.id.addWebPostBtn);
         postAddWebBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO WEB PICK
                 Intent intent = new Intent(getContext(), NewPostActivity.class);
                 intent.putExtra("TYPE", "4");
                 startActivity(intent);
             }
         });
+
         ClearPosts();
         new Thread(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             public synchronized void run() {
                 try{
                     wait(500);
-                    if(!GetPostsLocal()){
-                        GetPosts();
-                    }
+
+                    GetPosts();
+                    //if(!GetPostsLocal()){
+                    //}
                     swipeRefreshLayout.setRefreshing(false);
                 }catch (Exception e){
                     e.printStackTrace();
@@ -141,6 +144,7 @@ public class MenuSurroundsFragment extends Fragment {
         String url = "http://ami.earth/android/api/getPostsSurroundings.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
                     @Override
                     public void onResponse(String response) {
                         try {
@@ -153,6 +157,7 @@ public class MenuSurroundsFragment extends Fragment {
 
                             }else{
                                 //GOT POSTS
+
                                 Log.d("RESPONSE", response);
                                 JSONObject postsObj = new JSONObject(response);
                                 JSONArray posts = postsObj.getJSONArray("postsArray");
@@ -166,10 +171,153 @@ public class MenuSurroundsFragment extends Fragment {
                                             post.getString("posterName"),
                                             post.getString("posterLocation"),
                                             post.getString("posterImage"));
-                                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                                    transaction.add(R.id.postsContainer, postFragments[i]);
-                                    //transaction.addToBackStack(null);
-                                    transaction.commit();
+
+                                }
+
+                                //ADD POSTS
+
+                                int prevnum = 0;
+                                boolean left = true;
+                                for(int i = 0; i < postFragments.length; i+= 3){
+
+                                    final int min = 1;
+                                    final int max = 3;
+                                    int random = 0;
+                                    while(true) {
+                                        random = new Random().nextInt((max - min) + 1) + min;
+                                        if(random != prevnum){
+                                            prevnum = random;
+                                            break;
+                                        }
+                                    }
+
+                                    switch(random){
+                                        case 1:
+                                            LinearLayout llyt = new LinearLayout(getContext());
+                                            llyt.setOrientation(LinearLayout.HORIZONTAL);
+                                            llyt.setId(View.generateViewId());
+
+                                            LinearLayout llyt2 = new LinearLayout(getContext());
+                                            llyt2.setOrientation(LinearLayout.VERTICAL);
+                                            llyt2.setId(View.generateViewId());
+
+                                            LinearLayout llyt3 = new LinearLayout(getContext());
+                                            llyt3.setOrientation(LinearLayout.VERTICAL);
+                                            llyt3.setId(View.generateViewId());
+
+                                            LinearLayout.LayoutParams paramsSmall = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT , ViewGroup.LayoutParams.WRAP_CONTENT);
+                                            LinearLayout.LayoutParams paramsBig = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT , ViewGroup.LayoutParams.MATCH_PARENT);
+                                            LinearLayout.LayoutParams paramsParent = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                                                //Add first post
+                                            if(left){
+                                                paramsParent.gravity = Gravity.RIGHT;
+                                                llyt.getRootView().setLayoutParams(paramsParent);
+                                                postsContainer.addView(llyt);
+
+                                                paramsBig.gravity = Gravity.LEFT;
+                                                paramsBig.weight = 4;
+                                                llyt3.getRootView().setLayoutParams(paramsBig);
+                                                llyt.addView(llyt3);
+                                                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                                                transaction.add(llyt3.getId(), postFragments[i]);
+                                                transaction.commit();
+
+
+
+
+                                                //Add lyt for posts 2 and 3
+                                                paramsSmall.gravity = Gravity.RIGHT;
+                                                paramsSmall.weight = 1;
+                                                llyt2.getRootView().setLayoutParams(paramsSmall);
+                                                llyt.addView(llyt2);
+
+                                                //Add posts 2 and 3 if they exist
+
+                                                if (postFragments[i + 1] != null) {
+                                                    FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                                                    transaction1.add(llyt2.getId(), postFragments[i + 1]);
+                                                    transaction1.commit();
+                                                }
+                                                if (postFragments[i + 2] != null) {
+                                                    FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                                                    transaction1.add(llyt2.getId(), postFragments[i + 2]);
+                                                    transaction1.commit();
+                                                }
+                                                left = false;
+                                            }else{
+                                                paramsParent.gravity = Gravity.LEFT;
+                                                llyt.getRootView().setLayoutParams(paramsParent);
+                                                postsContainer.addView(llyt);
+
+                                                //Add lyt for posts 2 and 3
+                                                paramsSmall.gravity = Gravity.LEFT;
+                                                paramsSmall.weight = 1;
+                                                llyt2.getRootView().setLayoutParams(paramsSmall);
+                                                llyt.addView(llyt2);
+
+                                                //Add posts 2 and 3 if they exist
+
+                                                if (postFragments[i + 1] != null) {
+                                                    FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                                                    transaction1.add(llyt2.getId(), postFragments[i + 1]);
+                                                    transaction1.commit();
+                                                }
+                                                if (postFragments[i + 2] != null) {
+                                                    FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                                                    transaction1.add(llyt2.getId(), postFragments[i + 2]);
+                                                    transaction1.commit();
+                                                }
+                                                paramsBig.gravity = Gravity.RIGHT;
+                                                paramsBig.weight = 4;
+                                                llyt3.getRootView().setLayoutParams(paramsBig);
+                                                llyt.addView(llyt3);
+                                                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                                                transaction.add(llyt3.getId(), postFragments[i]);
+                                                transaction.commit();
+                                                left = true;
+                                            }
+
+                                            break;
+                                        case 2:
+                                            FragmentTransaction transactionc = getFragmentManager().beginTransaction();
+                                            transactionc.add(postsContainer.getId(), postFragments[i]);
+                                            transactionc.commit();
+                                            i -= 2;
+                                            break;
+                                        case 3:
+                                            LinearLayout linearLayout = new LinearLayout(getContext());
+                                            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                                            linearLayout.setId(View.generateViewId());
+                                            LinearLayout linearLayouta = new LinearLayout(getContext());
+                                            linearLayouta.setOrientation(LinearLayout.VERTICAL);
+                                            linearLayouta.setId(View.generateViewId());
+
+                                            LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(postsContainer.getWidth()/2 , ViewGroup.LayoutParams.WRAP_CONTENT);
+                                            linearLayouta.getRootView().setLayoutParams(params1);
+                                            linearLayout.getRootView().setLayoutParams(new LinearLayout.LayoutParams(postsContainer.getWidth() , ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                                            postsContainer.addView(linearLayout);
+
+                                            //Add first post
+                                            FragmentTransaction transactiona = getFragmentManager().beginTransaction();
+                                            transactiona.add(linearLayout.getId(), postFragments[i]);
+                                            transactiona.commit();
+
+                                            //Add lyt for posts 2 and 3
+                                            linearLayout.addView(linearLayouta);
+
+                                            //Add posts 2 and 3 if they exist
+
+                                            if (postFragments[i + 1] != null) {
+                                                FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                                                transaction1.add(linearLayouta.getId(), postFragments[i + 1]);
+                                                transaction1.commit();
+                                            }
+                                            i -= 1;
+                                            break;
+                                    }
+
                                 }
                             }
                         } catch (Exception e) {
@@ -194,10 +342,87 @@ public class MenuSurroundsFragment extends Fragment {
         };
         queue.add(postRequest);
     }
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     private boolean GetPostsLocal(){
         if(postFragments != null){
-            for(int i=0; i < postFragments.length; i++){
-                    if (!postFragments[i].isAdded()) {
+            for(int i=0; i < postFragments.length; i+=3){
+                final int min = 1;
+                final int max = 3;
+                final int random = new Random().nextInt((max - min) + 1) + min;
+                switch(random){
+                    case 1:
+                        LinearLayout llyt = new LinearLayout(getContext());
+                        llyt.setOrientation(LinearLayout.HORIZONTAL);
+                        llyt.setId(View.generateViewId());
+
+                        LinearLayout llyt2 = new LinearLayout(getContext());
+                        llyt2.setOrientation(LinearLayout.VERTICAL);
+                        llyt2.setId(View.generateViewId());
+
+                        postsContainer.addView(llyt);
+                        //Add first post
+                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                        transaction.add(llyt.getId(), postFragments[i]);
+                        transaction.commit();
+
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(postsContainer.getWidth()/2 , ViewGroup.LayoutParams.WRAP_CONTENT);
+                        params.gravity = Gravity.LEFT;
+                        llyt2.getRootView().setLayoutParams(params);
+
+                        //Add lyt for posts 2 and 3
+                        llyt.addView(llyt2);
+
+                        //Add posts 2 and 3 if they exist
+
+                        if (postFragments[i + 1] != null) {
+                            FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                            transaction1.add(llyt2.getId(), postFragments[i + 1]);
+                            transaction1.commit();
+                        }
+                        if (postFragments[i + 2] != null) {
+                            FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                            transaction1.add(llyt2.getId(), postFragments[i + 2]);
+                            transaction1.commit();
+                        }
+                        break;
+                    case 2:
+                        FragmentTransaction transactionc = getFragmentManager().beginTransaction();
+                        transactionc.add(postsContainer.getId(), postFragments[i]);
+                        transactionc.commit();
+                        i -= 2;
+                        break;
+                    case 3:
+                        LinearLayout linearLayout = new LinearLayout(getContext());
+                        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                        linearLayout.setId(View.generateViewId());
+                        LinearLayout linearLayouta = new LinearLayout(getContext());
+                        linearLayouta.setOrientation(LinearLayout.VERTICAL);
+                        linearLayouta.setId(View.generateViewId());
+
+                        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(postsContainer.getWidth()/2 , ViewGroup.LayoutParams.WRAP_CONTENT);
+                        linearLayouta.getRootView().setLayoutParams(params1);
+                        linearLayout.getRootView().setLayoutParams(new LinearLayout.LayoutParams(postsContainer.getWidth() , ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                        postsContainer.addView(linearLayout);
+
+                        //Add first post
+                        FragmentTransaction transactiona = getFragmentManager().beginTransaction();
+                        transactiona.add(linearLayout.getId(), postFragments[i]);
+                        transactiona.commit();
+
+                        //Add lyt for posts 2 and 3
+                        linearLayout.addView(linearLayouta);
+
+                        //Add posts 2 and 3 if they exist
+
+                        if (postFragments[i + 1] != null) {
+                            FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                            transaction1.add(linearLayouta.getId(), postFragments[i + 1]);
+                            transaction1.commit();
+                        }
+                        break;
+                }
+                    /*if (!postFragments[i].isAdded()) {
                         FragmentTransaction transaction = getFragmentManager().beginTransaction();
                         transaction.add(R.id.postsContainer, postFragments[i]);
                         transaction.commit();
@@ -205,7 +430,8 @@ public class MenuSurroundsFragment extends Fragment {
                         FragmentTransaction transaction = getFragmentManager().beginTransaction();
                         transaction.show(postFragments[i]);
                         transaction.commit();
-                    }
+                        Log.d("FRAGMENT ADDED = ", ""+postFragments[i].isAdded());
+                    }*/
             }
             return true;
         }else{

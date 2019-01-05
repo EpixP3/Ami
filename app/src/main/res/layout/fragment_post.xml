@@ -22,7 +22,7 @@
             android:layout_marginLeft="6dp"
             android:layout_marginTop="6dp"
             android:padding="2dp"
-            android:src="@drawable/loading_gif"
+            android:src="@drawable/defaultprofile"
             app:civ_border_color="#bfcbd9"
             app:civ_border_width="1dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -65,74 +65,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/postActivity_profileImg" />
 
-        <ImageButton
-            android:id="@+id/post_likeBtn"
-            android:layout_width="37dp"
-            android:layout_height="37dp"
-            android:layout_marginBottom="6dp"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
-            android:src="@drawable/highfive"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/post_likeTxt" />
-
-        <TextView
-            android:id="@+id/post_likeTxt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="20dp"
-            android:text="557"
-            android:textColor="@android:color/black"
-            android:textSize="10sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <ImageButton
-            android:id="@+id/post_commentBtn"
-            android:layout_width="37dp"
-            android:layout_height="37dp"
-            android:layout_marginEnd="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginBottom="6dp"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
-            android:src="@drawable/chats"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/post_likeBtn" />
-
-        <TextView
-            android:id="@+id/post_commentTxt"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_alignLeft="@id/post_commentBtn"
-            android:layout_alignTop="@id/post_commentBtn"
-            android:layout_alignRight="@id/post_commentBtn"
-            android:layout_alignBottom="@id/post_commentBtn"
-            android:layout_marginBottom="8dp"
-            android:gravity="center"
-            android:text="552"
-            android:textColor="@android:color/black"
-            android:textSize="10sp"
-            app:layout_constraintBottom_toBottomOf="@+id/post_commentBtn"
-            app:layout_constraintEnd_toEndOf="@+id/post_commentBtn"
-            app:layout_constraintStart_toStartOf="@+id/post_commentBtn"
-            app:layout_constraintTop_toTopOf="@+id/post_commentBtn" />
-
-        <ImageView
-            android:id="@+id/post_contentTypeImg"
-            android:layout_width="37dp"
-            android:layout_height="37dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginBottom="6dp"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
-            android:src="@drawable/common_google_signin_btn_icon_dark"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -141,15 +73,21 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
             android:background="@drawable/post_content"
             android:gravity="left"
             android:orientation="vertical"
             android:padding="7dp"
-            app:layout_constraintBottom_toTopOf="@+id/post_contentTypeImg"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/post_titleTxt">
+
+            <TextView
+                android:id="@+id/post_readmoreTxt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Read more..."
+                android:textStyle="italic" />
 
             <ImageView
                 android:id="@+id/post_contentImg"

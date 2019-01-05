@@ -46,16 +46,17 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="180dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:text="Samir"
+            android:text="Name"
             android:textColor="#4b5561"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.509"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postActivity_profileImg" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout2"
@@ -74,7 +75,7 @@
                 android:id="@+id/profileAgeTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="27"
+                android:text="Age"
                 app:layout_constraintEnd_toStartOf="@+id/textView19"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -84,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginLeft="4dp"
-                android:text="Enterpreneur"
+                android:text="Occupation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView19"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -113,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginLeft="4dp"
-                android:text="Berlin"
+                android:text="Locaiton"
                 android:textStyle="italic"
                 app:layout_constraintStart_toEndOf="@+id/textView20"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -128,7 +129,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="160dp"
             android:layout_marginRight="160dp"
-            android:text='"Change the world to the better""'
+            android:text='"Quote"'
             android:textSize="15sp"
             android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
@@ -137,6 +138,7 @@
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout2" />
 
         <HorizontalScrollView
+            android:id="@+id/horizontalScrollView"
             android:layout_width="0dp"
             android:layout_height="35dp"
             android:layout_marginTop="16dp"
@@ -150,6 +152,62 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" />
         </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView">
+
+            <TextView
+                android:id="@+id/profile_contactsTxt"
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/profile_contacts_drawable"
+                android:drawablePadding="8dp"
+                android:text="Contacts"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/profile_highFivesTxt"
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/profile_highfives_drawable"
+                android:drawablePadding="8dp"
+                android:text="High Fives"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/profile_postsTxt"
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/profile_posts_drawable"
+                android:drawablePadding="8dp"
+                android:text="Posts"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/profile_settingsTxt"
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/profile_settings_drawable"
+                android:drawablePadding="8dp"
+                android:text="Settings"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+        </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

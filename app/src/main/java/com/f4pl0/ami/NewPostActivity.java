@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,8 @@ import com.f4pl0.ami.Fragments.MainFragments.MenuProfileFragment;
 import com.f4pl0.ami.Fragments.NewPostFragments.NewPostCategoryFragment;
 import com.f4pl0.ami.Fragments.NewPostFragments.NewPostContentTextFragment;
 import com.f4pl0.ami.Fragments.NewPostFragments.NewPostPicFragment;
+import com.f4pl0.ami.Fragments.NewPostFragments.NewPostPictureTitleFragment;
+import com.f4pl0.ami.Fragments.NewPostFragments.NewPostSearchWebFragment;
 import com.f4pl0.ami.Fragments.NewPostFragments.NewPostShareFragment;
 import com.f4pl0.ami.Fragments.NewPostFragments.NewPostTitleTextFragment;
 
@@ -43,6 +46,7 @@ public class NewPostActivity extends AppCompatActivity {
     private String postTextTitle = "";
     private Bitmap postImage = null;
     private String interests = "";
+    NewPostSearchWebFragment newPostSearchWebFragment;
     private boolean shareFamily=true, shareCloseFriends=true, shareAcq=true, shareLikeMinded=true;
     ProgressDialog progress;
 
@@ -61,10 +65,32 @@ public class NewPostActivity extends AppCompatActivity {
         //Initialize Components
         Intent intent = getIntent();
         setupType = intent.getStringExtra("TYPE");
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         switch (setupType){
             case "1":
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.newPostFragment, new NewPostContentTextFragment());
+                transaction.addToBackStack(null);
+                transaction.commit();
+                break;
+
+            case "2":
+                postTextContent = "";
+                this.postImage = decodeBase64(getIntent().getStringExtra("img"));
+                transaction.replace(R.id.newPostFragment, new NewPostPictureTitleFragment(postImage));
+                transaction.addToBackStack(null);
+                transaction.commit();
+                break;
+            case "3":
+                postTextContent = "";
+                this.postImage = (Bitmap) getIntent().getParcelableExtra("img");
+                transaction.replace(R.id.newPostFragment, new NewPostPictureTitleFragment(postImage));
+                transaction.addToBackStack(null);
+                transaction.commit();
+                break;
+            case "4":
+                newPostSearchWebFragment = new NewPostSearchWebFragment();
+                transaction.replace(R.id.newPostFragment, newPostSearchWebFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
                 break;
@@ -79,18 +105,26 @@ public class NewPostActivity extends AppCompatActivity {
                     case "1":
                         switch (currentStep){
                             case 0:
-                                transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-                                transaction.replace(R.id.newPostFragment, new NewPostTitleTextFragment());
-                                transaction.addToBackStack(null);
-                                transaction.commit();
-                                currentStep++;
+                                if(postTextContent.length() > 100) {
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostTitleTextFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "The content should be at least 100 characters long.", Toast.LENGTH_SHORT).show();
+                                }
                                 break;
                             case 1:
-                                transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-                                transaction.replace(R.id.newPostFragment, new NewPostPicFragment());
-                                transaction.addToBackStack(null);
-                                transaction.commit();
-                                currentStep++;
+                                if(postTextTitle.length() > 1) {
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostPicFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please type in a valid title.", Toast.LENGTH_SHORT).show();
+                                }
                                 break;
                             case 2:
                                 transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
@@ -144,6 +178,193 @@ public class NewPostActivity extends AppCompatActivity {
                                 break;
                         }
                         break;
+                    case "2":
+                        switch (currentStep){
+                            case 0:
+                                if(postTextTitle.length() > 1) {
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostCategoryFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please enter a valid title.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case 1:
+                                String interestsarr = getSharedPreferences("interests", Context.MODE_PRIVATE).getString("user.interests", "");
+                                if(interestsarr.length() > 0) {
+                                    interests = interestsarr.substring(1);
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostShareFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    nextBtn.setImageDrawable(getResources().getDrawable(R.drawable.new_post_post));
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please select 1 or more interests.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case 2:
+                                String shares = "";
+                                if(shareFamily){
+                                    shares += "fam";
+                                }if(shareCloseFriends){
+                                if(shares.length() > 0){
+                                    shares += ",clo";
+                                }else{
+                                    shares += "clo";
+                                }
+                            }if(shareAcq){
+                                if(shares.length() > 0){
+                                    shares += ",acq";
+                                }else{
+                                    shares += "acq";
+                                }
+                            }if(shareLikeMinded){
+                                if(shares.length() > 0){
+                                    shares += ",lik";
+                                }else{
+                                    shares += "lik";
+                                }
+                            }
+                                if(shares.length() >  0) {
+                                    post(postTextTitle, postTextContent, postImage, interests, shares);
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please select at least 1 group to share with.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                        }
+                        break;
+                    case "3":
+                        switch (currentStep){
+                            case 0:
+                                if(postTextTitle.length() > 1) {
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostCategoryFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please enter a valid title.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case 1:
+                                String interestsarr = getSharedPreferences("interests", Context.MODE_PRIVATE).getString("user.interests", "");
+                                if(interestsarr.length() > 0) {
+                                    interests = interestsarr.substring(1);
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostShareFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    nextBtn.setImageDrawable(getResources().getDrawable(R.drawable.new_post_post));
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please select 1 or more interests.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case 2:
+                                String shares = "";
+                                if(shareFamily){
+                                    shares += "fam";
+                                }if(shareCloseFriends){
+                                if(shares.length() > 0){
+                                    shares += ",clo";
+                                }else{
+                                    shares += "clo";
+                                }
+                            }if(shareAcq){
+                                if(shares.length() > 0){
+                                    shares += ",acq";
+                                }else{
+                                    shares += "acq";
+                                }
+                            }if(shareLikeMinded){
+                                if(shares.length() > 0){
+                                    shares += ",lik";
+                                }else{
+                                    shares += "lik";
+                                }
+                            }
+                                if(shares.length() >  0) {
+                                    post(postTextTitle, postTextContent, postImage, interests, shares);
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please select at least 1 group to share with.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                        }
+                        break;
+                    case "4":
+                        switch (currentStep){
+                            case 0:
+                                if(newPostSearchWebFragment.getUrl().length() > 0) {
+                                    postTextContent = newPostSearchWebFragment.getUrl();
+                                    postTextTitle = newPostSearchWebFragment.getTitle();
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostTitleTextFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please enter url or a search term.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case 1:
+                                if(postTextTitle.length() > 1) {
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostCategoryFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please type in a valid title.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case 2:
+                                String interestsarr = getSharedPreferences("interests", Context.MODE_PRIVATE).getString("user.interests", "");
+                                if(interestsarr.length() > 0) {
+                                    interests = interestsarr.substring(1);
+                                    transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                                    transaction.replace(R.id.newPostFragment, new NewPostShareFragment());
+                                    transaction.addToBackStack(null);
+                                    transaction.commit();
+                                    nextBtn.setImageDrawable(getResources().getDrawable(R.drawable.new_post_post));
+                                    currentStep++;
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please select 1 or more interests.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case 3:
+                                String shares = "";
+                                if(shareFamily){
+                                    shares += "fam";
+                                }if(shareCloseFriends){
+                                if(shares.length() > 0){
+                                    shares += ",clo";
+                                }else{
+                                    shares += "clo";
+                                }
+                            }if(shareAcq){
+                                if(shares.length() > 0){
+                                    shares += ",acq";
+                                }else{
+                                    shares += "acq";
+                                }
+                            }if(shareLikeMinded){
+                                if(shares.length() > 0){
+                                    shares += ",lik";
+                                }else{
+                                    shares += "lik";
+                                }
+                            }
+                                if(shares.length() >  0) {
+                                    post(postTextTitle, postTextContent, postImage, interests, shares);
+                                }else{
+                                    Toast.makeText(NewPostActivity.this, "Please select at least 1 group to share with.", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                        }
+                        break;
                 }
             }
         });
@@ -173,7 +394,12 @@ public class NewPostActivity extends AppCompatActivity {
     }
     public void SetPostImage(Bitmap postImage){
         this.postImage = postImage;
-        //TODO NEXT STEP
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        transaction.replace(R.id.newPostFragment, new NewPostCategoryFragment());
+        transaction.addToBackStack(null);
+        transaction.commit();
+        currentStep++;
     }
     public void showLoading(String message){
         progress.setMessage(message);
@@ -298,5 +524,10 @@ public class NewPostActivity extends AppCompatActivity {
 
         bm = Bitmap.createScaledBitmap(bm, width, height, true);
         return bm;
+    }
+    public static Bitmap decodeBase64(String input)
+    {
+        byte[] decodedBytes = Base64.decode(input, 0);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 }

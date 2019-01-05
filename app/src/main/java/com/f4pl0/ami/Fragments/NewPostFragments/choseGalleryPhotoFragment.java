@@ -66,7 +66,7 @@ public class choseGalleryPhotoFragment extends Fragment {
                         //imageButton.getRootView().setLayoutParams(parem);
                         imageButton.getRootView().setLayoutParams(new AbsListView.LayoutParams(220, 220));
                         imageButton.setBackground(getResources().getDrawable(R.drawable.text_box_input_bg));
-                        imageButton.setImageBitmap(getBitmapFromPath(images[i]));
+                        imageButton.setImageBitmap(scaleBitmapContent(getBitmapFromPath(images[i])));
                         imageButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                         imageButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -160,5 +160,34 @@ public class choseGalleryPhotoFragment extends Fragment {
     }
     public void addViewToGridView(View viewToAdd){
         gridGalleryPhotoLayout.addView(viewToAdd);
+    }
+    private Bitmap scaleBitmapContent(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 512;
+        int maxHeight = 512;
+
+        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+        if (width > height) {
+            // landscape-
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int)(height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int)(width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+
+        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
     }
 }

@@ -43,7 +43,11 @@ public class SetupAgeFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                ((SetupActivity) getActivity()).setAge(Integer.parseInt(s.toString()));
+                try {
+                    ((SetupActivity) getActivity()).setAge(Integer.parseInt(s.toString()));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         });
 

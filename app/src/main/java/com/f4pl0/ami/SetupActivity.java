@@ -360,32 +360,40 @@ public class SetupActivity extends FragmentActivity {
     }
 
     private void getLocation(double lat, double lng) {
-        //Method for locating the user's city and state based on coordinates
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        List<Address> addresses = null;
-        try {
-            addresses = geocoder.getFromLocation(lat, lng, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if(addresses != null) {
-            if (addresses.size() > 0) {
-                for (int i = 0; i < addresses.size(); i++) {
-                    String city = addresses.get(i).getLocality();
-                    String country = addresses.get(0).getCountryName();
-                    if (city != null && country != null) {
-                        //Store city and state in a variable and go to next step
-                        String loc = city + ", " + country;
-                        setLocation(loc);
-                        ((SetupLocationFragment) fragment).nextStep();
-                        break;
+        boolean flag = false;
+        while(true) {
+            //Method for locating the user's city and state based on coordinates
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = null;
+            try {
+                addresses = geocoder.getFromLocation(lat, lng, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (addresses != null) {
+                if (addresses.size() > 0) {
+                    for (int i = 0; i < addresses.size(); i++) {
+                         String city = addresses.get(i).getLocality();
+                        if(city == null) {
+                            city = addresses.get(i).getAddressLine(0).split(",")[2].substring(1);
+                        }
+                        String country = addresses.get(0).getCountryName();
+                        if (city != null && country != null) {
+                            //Store city and state in a variable and go to next step
+                            String loc = city + ", " + country;
+                            setLocation(loc);
+                            ((SetupLocationFragment) fragment).nextStep();
+                            dismissLoading();
+                            flag = true;
+                            break;
+                        }
                     }
                 }
+            } else {
             }
-        }else{
-            dismissLoading();
-            Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT).show();
-            Toast.makeText(this, "Please Restart Your device and try again.", Toast.LENGTH_LONG).show();
+            if(flag){
+                break;
+            }
         }
     }
 

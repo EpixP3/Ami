@@ -1,6 +1,8 @@
 package com.f4pl0.ami.Fragments.MainFragments;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,15 +14,23 @@ import android.support.v4.app.Fragment;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.f4pl0.ami.MainActivity;
 import com.f4pl0.ami.PostActivity;
 import com.f4pl0.ami.R;
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -29,9 +39,10 @@ import java.net.URL;
 @SuppressLint("ValidFragment")
 public class PostFragment extends Fragment {
     private String title, content, image, posterName, posterLocation, posterImage;
-    TextView posterNameTxt, posterLocationTxt, titleTxt;
+    TextView posterNameTxt, posterLocationTxt, titleTxt, readMoreTxt;
     ImageView posterImageImg, imageImg;
     Bitmap postBitmap = null , profileBitmap = null;
+    View fragmentView;
 
     public PostFragment(String title, String content, String image, String posterName, String posterLocation, String posterImage){
         this.title = title;
@@ -44,9 +55,9 @@ public class PostFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View fragmentView = inflater.inflate(R.layout.fragment_post, container, false);
+        fragmentView = inflater.inflate(R.layout.fragment_post, container, false);
 
         //Initialize components
         posterNameTxt = fragmentView.findViewById(R.id.post_nameTxt);
@@ -54,13 +65,42 @@ public class PostFragment extends Fragment {
         posterImageImg = fragmentView.findViewById(R.id.postActivity_profileImg);
         titleTxt = fragmentView.findViewById(R.id.post_titleTxt);
         imageImg = fragmentView.findViewById(R.id.post_contentImg);
+        readMoreTxt = fragmentView.findViewById(R.id.post_readmoreTxt);
+
+
+
+        readMoreTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), PostActivity.class);
+                try {
+                    intent.putExtra("contentImg", encodeToBase64(postBitmap, Bitmap.CompressFormat.JPEG, 100));
+                }catch (Exception e){}
+                try {
+                    intent.putExtra("posterImg", encodeToBase64(profileBitmap, Bitmap.CompressFormat.JPEG, 100));
+                }catch (Exception e){}
+                intent.putExtra("contentTxt",content);
+                intent.putExtra("posterName", posterName);
+                intent.putExtra("posterLocation", posterLocation);
+                intent.putExtra("title", title);
+                startActivity(intent);
+            }
+        });
         imageImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), PostActivity.class);
-                intent.putExtra("contentImg", encodeToBase64(profileBitmap, Bitmap.CompressFormat.JPEG, 100));
-                intent.putExtra("posterImg", encodeToBase64(postBitmap, Bitmap.CompressFormat.JPEG, 100));
-                intent.putExtra("contentTxt",content);
+                try {
+                    intent.putExtra("contentImg", saveToInternalStorage(postBitmap));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                try {
+                    intent.putExtra("posterImg", encodeToBase64(profileBitmap, Bitmap.CompressFormat.JPEG, 100));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                intent.putExtra("contentTxt", content);
                 intent.putExtra("posterName", posterName);
                 intent.putExtra("posterLocation", posterLocation);
                 intent.putExtra("title", title);
@@ -72,10 +112,10 @@ public class PostFragment extends Fragment {
         posterLocationTxt.setText(posterLocation);
 
         if(postBitmap != null){
-            posterImageImg.setImageBitmap(postBitmap);
+            imageImg.setImageBitmap(postBitmap);
         }else{
         if(image.length() > 5) {
-            MenuProfileFragment.MyAsync obj = new MenuProfileFragment.MyAsync(posterImage) {
+            MenuProfileFragment.MyAsync obj = new MenuProfileFragment.MyAsync(image) {
 
                 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                 @Override
@@ -83,18 +123,21 @@ public class PostFragment extends Fragment {
                     super.onPostExecute(bmp);
                     postBitmap = bmp;
                     postBitmap = scaleBitmapProfile(postBitmap);
-                    posterImageImg.setImageBitmap(postBitmap);
+                    readMoreTxt.setVisibility(View.GONE);
+                    imageImg.setImageBitmap(postBitmap);
                 }
             };
             obj.execute();
         }else{
+            imageImg.setVisibility(View.GONE);
+            readMoreTxt.setVisibility(View.VISIBLE);
         }
         }
         if(profileBitmap != null){
-            imageImg.setImageBitmap(profileBitmap);
+            posterImageImg.setImageBitmap(profileBitmap);
         }else {
-            if (image.length() > 5) {
-                MenuProfileFragment.MyAsync a = new MenuProfileFragment.MyAsync(image) {
+            if (posterImage.length() > 5) {
+                MenuProfileFragment.MyAsync a = new MenuProfileFragment.MyAsync(posterImage) {
 
                     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                     @Override
@@ -102,15 +145,15 @@ public class PostFragment extends Fragment {
                         super.onPostExecute(bmp);
                         profileBitmap = bmp;
                         profileBitmap = scaleBitmapContent(bmp);
-                        imageImg.setImageBitmap(profileBitmap);
+                        posterImageImg.setImageBitmap(profileBitmap);
                     }
                 };
                 a.execute();
             }else{
-                imageImg.setVisibility(View.GONE);
             }
         }
         titleTxt.setText(title);
+
 
         return fragmentView;
     }
@@ -211,9 +254,30 @@ public class PostFragment extends Fragment {
         return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
     }
 
-    public static Bitmap decodeBase64(String input)
-    {
-        byte[] decodedBytes = Base64.decode(input, 0);
-        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+    private String saveToInternalStorage(Bitmap bitmapImage){
+        ContextWrapper cw = new ContextWrapper(getActivity().getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath=new File(directory,"profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();
+    }
+    public void SetLLParams(LinearLayout.LayoutParams params){
+        getView().setLayoutParams(params);
     }
 }
